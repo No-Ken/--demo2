@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarTransport - 機能説明</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .demo-link {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .demo-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 60px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .feature-description {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #555;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .workflow-section {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            margin: 40px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .workflow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 20px;
+        }
+
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .step-description {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .tech-specs {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 40px 0;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .spec-item {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .spec-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .spec-value {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .benefits-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 60px;
+            text-align: center;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .benefit {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .benefit-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .security-section {
+            background: #1a1a1a;
+            color: white;
+            border-radius: 20px;
+            padding: 60px;
+            margin: 40px 0;
+        }
+
+        .security-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .security-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .security-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #ffc107;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 80px 0;
+            background: white;
+            border-radius: 20px;
+            margin: 40px 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .responsive-demo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 40px 0;
+        }
+
+        .phone-mockup {
+            width: 300px;
+            height: 600px;
+            background: #333;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen-content {
+            padding: 20px;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 40px 0;
+            }
+
+            .features-grid,
+            .workflow-steps,
+            .specs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .workflow-section,
+            .benefits-section,
+            .security-section {
+                padding: 40px 20px;
+            }
+        }
+
+        .comparison-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 40px 0;
+        }
+
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .check {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .cross {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>🚗 CarTransport</h1>
+            <p class="subtitle">中古車輸送マッチングプラットフォーム - 機能詳細</p>
+            <a href="index.html" class="demo-link">📱 デモを体験する</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 概要セクション -->
+        <section class="section">
+            <h2 class="section-title">サービス概要</h2>
+            <p class="section-subtitle">
+                CarTransportは、中古車販売店・オークション会場・個人間取引で発生する車両輸送を、最速・安全に完遂するマッチングプラットフォームです。
+                ドライバーには副業・専業の機会を提供し、報酬を最短即日で支払います。
+            </p>
+        </section>
+
+        <!-- 主要機能 -->
+        <section class="section">
+            <h2 class="section-title">主要機能</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <h3 class="feature-title">即時マッチング</h3>
+                    <p class="feature-description">最短数分で確定する高速マッチングシステム</p>
+                    <ul class="feature-list">
+                        <li>条件マッチするドライバーへ即時プッシュ通知</li>
+                        <li>早い者勝ち方式 or 入札方式（選択可）</li>
+                        <li>AI最適化による効率的なマッチング</li>
+                        <li>リアルタイム応募状況表示</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">🛡️</span>
+                    <h3 class="feature-title">安心担保システム</h3>
+                    <p class="feature-description">多層的なセキュリティで安全な取引を保証</p>
+                    <ul class="feature-list">
+                        <li>本人確認（eKYC）・運送保険自動付保</li>
+                        <li>GPS走行ログ・リアルタイム追跡</li>
+                        <li>引渡し前後の360°車両検査</li>
+                        <li>AIダメージ検知・自動見積算定</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">💰</span>
+                    <h3 class="feature-title">コスト圧縮</h3>
+                    <p class="feature-description">従来の陸送会社より最大30%のコスト削減</p>
+                    <ul class="feature-list">
+                        <li>最短距離・人件費の最適化</li>
+                        <li>ダイナミックプライシング</li>
+                        <li>ルート組合せによる効率化</li>
+                        <li>中間マージンの排除</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">📱</span>
+                    <h3 class="feature-title">モバイルファースト</h3>
+                    <p class="feature-description">直感的で使いやすいモバイルアプリ</p>
+                    <ul class="feature-list">
+                        <li>荷主・ドライバー専用インターフェース</li>
+                        <li>リアルタイム通知・チャット機能</li>
+                        <li>写真撮影・QRコード認証</li>
+                        <li>GPS ナビゲーション統合</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">💳</span>
+                    <h3 class="feature-title">エスクロー決済</h3>
+                    <p class="feature-description">安全で確実な決済システム</p>
+                    <ul class="feature-list">
+                        <li>成約時に預り金を自動ロック</li>
+                        <li>完了時の自動支払い</li>
+                        <li>最短即日振込対応</li>
+                        <li>複数決済手段対応</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">📊</span>
+                    <h3 class="feature-title">データ分析</h3>
+                    <p class="feature-description">詳細な分析とレポート機能</p>
+                    <ul class="feature-list">
+                        <li>ドライバー収益ダッシュボード</li>
+                        <li>配送効率・安全運転スコア</li>
+                        <li>荷主向け配送分析レポート</li>
+                        <li>税務CSV出力対応</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ワークフロー -->
+        <section class="workflow-section">
+            <h2 class="section-title">サービスフロー</h2>
+            <p class="section-subtitle">簡単5ステップで輸送完了</p>
+            
+            <div class="workflow-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4 class="step-title">案件登録</h4>
+                    <p class="step-description">荷主が車両情報・受取場所・納車先・希望日時・報酬上限を入力</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4 class="step-title">マッチング</h4>
+                    <p class="step-description">条件マッチするドライバーへ即時プッシュ通知・早い者勝ち or 入札方式</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4 class="step-title">受取・検査</h4>
+                    <p class="step-description">QR認証・360°写真撮影・走行距離記録・車両状態チェック</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h4 class="step-title">輸送・追跡</h4>
+                    <p class="step-description">GPS リアルタイム追跡・安全運転スコア・荷主向け進捗通知</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <h4 class="step-title">引渡・決済</h4>
+                    <p class="step-description">納車確認・デジタルサイン・エスクロー解除・報酬支払い</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 技術仕様 -->
+        <section class="section">
+            <h2 class="section-title">技術仕様</h2>
+            <div class="tech-specs">
+                <div class="specs-grid">
+                    <div class="spec-item">
+                        <div class="spec-title">パフォーマンス</div>
+                        <div class="spec-value">マッチング応答 < 300ms<br>GPS追跡遅延 < 5秒<br>同時接続 10,000 → 100,000 対応</div>
+                    </div>
+                    
+                    <div class="spec-item">
+                        <div class="spec-title">可用性</div>
+                        <div class="spec-value">99.9% 稼働率保証<br>冗長化・自動フェイルオーバー<br>24時間監視体制</div>
+                    </div>
+                    
+                    <div class="spec-item">
+                        <div class="spec-title">セキュリティ</div>
+                        <div class="spec-value">OAuth2.0 + FIDO2<br>OWASP ASVS Level 2<br>ISO/IEC 27001 準拠</div>
+                    </div>
+                    
+                    <div class="spec-item">
+                        <div class="spec-title">プライバシー</div>
+                        <div class="spec-value">GDPR・改正個人情報保護法対応<br>位置情報の最小化保持<br>暗号化通信 (TLS 1.3)</div>
+                    </div>
+                    
+                    <div class="spec-item">
+                        <div class="spec-title">法規制対応</div>
+                        <div class="spec-value">貨物自動車運送事業法<br>道路運送車両法<br>古物商許可対応</div>
+                    </div>
+                    
+                    <div class="spec-item">
+                        <div class="spec-title">保守性</div>
+                        <div class="spec-value">IaC (Terraform/Crossplane)<br>GitOps・CI/CD<br>自動テスト 90%+ カバレッジ</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 比較表 -->
+        <section class="section">
+            <h2 class="section-title">従来サービスとの比較</h2>
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>項目</th>
+                            <th>CarTransport</th>
+                            <th>従来の陸送会社</th>
+                            <th>個人手配</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>マッチング速度</td>
+                            <td><span class="check">✓</span> 最短数分</td>
+                            <td><span class="cross">✗</span> 1-3日</td>
+                            <td><span class="cross">✗</span> 数日-1週間</td>
+                        </tr>
+                        <tr>
+                            <td>リアルタイム追跡</td>
+                            <td><span class="check">✓</span> GPS 5秒間隔</td>
+                            <td><span class="cross">✗</span> 電話確認のみ</td>
+                            <td><span class="cross">✗</span> 連絡不可</td>
+                        </tr>
+                        <tr>
+                            <td>透明性のある料金</td>
+                            <td><span class="check">✓</span> 事前確定価格</td>
+                            <td><span class="cross">✗</span> 見積もり変動</td>
+                            <td><span class="cross">✗</span> 交渉次第</td>
+                        </tr>
+                        <tr>
+                            <td>保険・補償</td>
+                            <td><span class="check">✓</span> 自動付保</td>
+                            <td><span class="check">✓</span> 会社保険</td>
+                            <td><span class="cross">✗</span> 個人責任</td>
+                        </tr>
+                        <tr>
+                            <td>支払いスピード</td>
+                            <td><span class="check">✓</span> 即日</td>
+                            <td><span class="cross">✗</span> 月末締め</td>
+                            <td><span class="check">✓</span> 現金手渡し</td>
+                        </tr>
+                        <tr>
+                            <td>品質保証</td>
+                            <td><span class="check">✓</span> 評価システム</td>
+                            <td><span class="cross">✗</span> 会社次第</td>
+                            <td><span class="cross">✗</span> 保証なし</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- メリット -->
+        <section class="benefits-section">
+            <h2 class="section-title">利用メリット</h2>
+            <p class="section-subtitle">荷主・ドライバー双方にとっての価値</p>
+            
+            <div class="benefits-grid">
+                <div class="benefit">
+                    <span class="benefit-icon">📦</span>
+                    <h4 class="benefit-title">荷主メリット</h4>
+                    <p>コスト30%削減・即時手配・リアルタイム追跡・安心補償</p>
+                </div>
+                
+                <div class="benefit">
+                    <span class="benefit-icon">🚚</span>
+                    <h4 class="benefit-title">ドライバーメリット</h4>
+                    <p>柔軟な働き方・即日報酬・スキル向上・安定収入</p>
+                </div>
+                
+                <div class="benefit">
+                    <span class="benefit-icon">🌍</span>
+                    <h4 class="benefit-title">社会価値</h4>
+                    <p>CO2削減・交通効率化・雇用創出・デジタル化推進</p>
+                </div>
+                
+                <div class="benefit">
+                    <span class="benefit-icon">🔧</span>
+                    <h4 class="benefit-title">運営効率</h4>
+                    <p>自動化・スケーラビリティ・データ活用・継続改善</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- セキュリティ -->
+        <section class="security-section">
+            <h2 class="section-title" style="color: white;">セキュリティ & 安全性</h2>
+            <p class="section-subtitle" style="color: rgba(255,255,255,0.8);">
+                多層的なセキュリティ対策で安心・安全な取引環境を提供
+            </p>
+            
+            <div class="security-features">
+                <div class="security-item">
+                    <div class="security-icon">🔐</div>
+                    <h4 class="benefit-title">認証・本人確認</h4>
+                    <p>eKYC・二要素認証・生体認証・デジタル免許証連携</p>
+                </div>
+                
+                <div class="security-item">
+                    <div class="security-icon">📍</div>
+                    <h4 class="benefit-title">位置・走行管理</h4>
+                    <p>GPS リアルタイム追跡・ジオフェンス・速度監視・ルート記録</p>
+                </div>
+                
+                <div class="security-item">
+                    <div class="security-icon">🤖</div>
+                    <h4 class="benefit-title">AI 損害検知</h4>
+                    <p>360°画像解析・自動キズ検出・見積算定・保険連動</p>
+                </div>
+                
+                <div class="security-item">
+                    <div class="security-icon">💳</div>
+                    <h4 class="benefit-title">決済セキュリティ</h4>
+                    <p>エスクロー・PCI DSS準拠・不正検知・チャージバック対応</p>
+                </div>
+                
+                <div class="security-item">
+                    <div class="security-icon">📋</div>
+                    <h4 class="benefit-title">コンプライアンス</h4>
+                    <p>法規制遵守・監査ログ・データ保護・プライバシー配慮</p>
+                </div>
+                
+                <div class="security-item">
+                    <div class="security-icon">🛡️</div>
+                    <h4 class="benefit-title">リスク管理</h4>
+                    <p>保険自動付保・事故対応・緊急連絡・24時間サポート</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 拡張機能 -->
+        <section class="section">
+            <h2 class="section-title">将来の拡張機能</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🧠</span>
+                    <h3 class="feature-title">高度AI マッチング</h3>
+                    <ul class="feature-list">
+                        <li>ルート組合せ最適化（複数車両→同一ドライバー）</li>
+                        <li>AI時間予測・交通状況考慮</li>
+                        <li>逆方向案件自動提案</li>
+                        <li>需給予測・ダイナミックプライシング</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">🔗</span>
+                    <h3 class="feature-title">システム連携</h3>
+                    <ul class="feature-list">
+                        <li>OBD-II・テレマティクス連携</li>
+                        <li>販売店基幹システム API</li>
+                        <li>オークション会場システム連携</li>
+                        <li>Webhook・リアルタイム通知</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">🌐</span>
+                    <h3 class="feature-title">グローバル対応</h3>
+                    <ul class="feature-list">
+                        <li>多言語対応（日・英・中）</li>
+                        <li>訪日中古車バイヤー対応</li>
+                        <li>国際配送ネットワーク</li>
+                        <li>各国法規制対応</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">🔮</span>
+                    <h3 class="feature-title">Web3 & ブロックチェーン</h3>
+                    <ul class="feature-list">
+                        <li>NFT車両証書・走行ログ改ざん防止</li>
+                        <li>スマートコントラクト決済</li>
+                        <li>分散型評価システム</li>
+                        <li>トークンエコノミー</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta-section">
+            <h2 class="section-title">今すぐ体験してみよう</h2>
+            <p class="section-subtitle">モバイルデモで実際の操作感を確認できます</p>
+            
+            <a href="index.html" class="cta-button">📱 モバイルデモを体験</a>
+            <a href="#" class="cta-button">📧 詳細資料をダウンロード</a>
+            
+            <div class="responsive-demo">
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        <div class="screen-content">
+                            <h4>🚗 CarTransport</h4>
+                            <p>安全・迅速な<br>中古車輸送サービス</p>
+                            <div style="margin-top: 20px;">
+                                <div style="background: #f0f2ff; padding: 10px; border-radius: 8px; margin: 5px 0;">📦 荷主として利用</div>
+                                <div style="background: #f0f2ff; padding: 10px; border-radius: 8px; margin: 5px 0;">🚚 ドライバーとして稼働</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer style="background: #333; color: white; text-align: center; padding: 40px 0; margin-top: 60px;">
+        <div class="container">
+            <h3>🚗 CarTransport</h3>
+            <p>中古車輸送の未来を創造する</p>
+            <p style="margin-top: 20px; opacity: 0.7;">© 2024 CarTransport. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add scroll animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all feature cards and sections
+        document.querySelectorAll('.feature-card, .step, .spec-item, .benefit, .security-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

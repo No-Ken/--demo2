@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>荷主ダッシュボード - CarGo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-info {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: #34495e;
+            color: white;
+            padding: 1rem 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .panel-content {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-controls select,
+        .filter-controls input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .job-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .job-item {
+            border-bottom: 1px solid #ecf0f1;
+            padding: 1rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .job-item:hover {
+            background: #f8f9fa;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            margin-left: -1rem;
+            margin-right: -1rem;
+        }
+
+        .job-item:last-child {
+            border-bottom: none;
+        }
+
+        .job-info h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-info p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .job-status {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-pending {
+            background: #f39c12;
+            color: white;
+        }
+
+        .status-matched {
+            background: #3498db;
+            color: white;
+        }
+
+        .status-in-progress {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .status-completed {
+            background: #27ae60;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { 
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .tracking-info {
+            background: #ecf0f1;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            transition: width 0.3s ease;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 0.25rem;
+            font-size: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .star {
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.2s;
+        }
+
+        .star:hover,
+        .star.active {
+            color: #f39c12;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            animation: slideInRight 0.3s;
+            z-index: 2000;
+        }
+
+        @keyframes slideInRight {
+            from { 
+                transform: translateX(100%);
+            }
+            to { 
+                transform: translateX(0);
+            }
+        }
+
+        .notification.success {
+            border-left: 4px solid #27ae60;
+        }
+
+        .notification.info {
+            border-left: 4px solid #3498db;
+        }
+
+        .notification.warning {
+            border-left: 4px solid #f39c12;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .job-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .job-status {
+                align-items: flex-start;
+                flex-direction: row;
+            }
+
+            .filter-controls {
+                flex-direction: column;
+            }
+
+            .filter-controls select,
+            .filter-controls input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">🚗 CarGo - 荷主</div>
+            <div class="user-info">
+                <span>田中商会 様</span>
+                <a href="index.html" class="btn btn-secondary">ホームに戻る</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 通知エリア -->
+    <div id="notification" class="notification">
+        <span id="notificationText"></span>
+    </div>
+
+    <div class="main-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">荷主ダッシュボード</h1>
+            <p>中古車輸送の依頼・管理・追跡をワンストップで行えます</p>
+            
+            <div class="quick-stats">
+                <div class="stat-card" onclick="filterJobs('all')">
+                    <div class="stat-value" id="totalJobs">12</div>
+                    <div>今月の依頼</div>
+                </div>
+                <div class="stat-card" onclick="filterJobs('completed')">
+                    <div class="stat-value" id="completedJobs">8</div>
+                    <div>完了済み</div>
+                </div>
+                <div class="stat-card" onclick="filterJobs('in-progress')">
+                    <div class="stat-value" id="inProgressJobs">3</div>
+                    <div>輸送中</div>
+                </div>
+                <div class="stat-card" onclick="filterJobs('pending')">
+                    <div class="stat-value" id="pendingJobs">1</div>
+                    <div>マッチング中</div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="openModal('newJobModal')">🚗 新規輸送依頼</button>
+                <button class="btn btn-secondary" onclick="openModal('trackingModal')">📍 リアルタイム追跡</button>
+                <button class="btn btn-secondary" onclick="openModal('settingsModal')">⚙️ 設定</button>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="panel">
+                <div class="panel-header">
+                    <span>📋 依頼中の案件</span>
+                    <div class="panel-controls">
+                        <button class="btn btn-info btn-small" onclick="openModal('filterModal')">フィルター</button>
+                        <button class="btn btn-warning btn-small" onclick="sortJobs()">並び替え</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="filter-controls">
+                        <select id="statusFilter" onchange="applyFilters()">
+                            <option value="">すべてのステータス</option>
+                            <option value="pending">マッチング中</option>
+                            <option value="matched">ドライバー確定</option>
+                            <option value="in-progress">輸送中</option>
+                            <option value="completed">完了</option>
+                        </select>
+                        <input type="text" id="searchInput" placeholder="車種・場所で検索..." onkeyup="applyFilters()">
+                        <select id="sortBy" onchange="applySorting()">
+                            <option value="date">日付順</option>
+                            <option value="price">価格順</option>
+                            <option value="status">ステータス順</option>
+                        </select>
+                    </div>
+                    <div class="job-list" id="jobList">
+                        <div class="job-item" data-job-id="JOB001" data-status="in-progress" data-price="35000" data-date="2024-06-14">
+                            <div class="job-info">
+                                <h4>トヨタ プリウス 2019年</h4>
+                                <p>📍 東京都新宿区 → 神奈川県横浜市</p>
+                                <p>💰 ¥35,000</p>
+                                <p>⏰ 2024/06/14 9:00 希望</p>
+                            </div>
+                            <div class="job-status">
+                                <span class="status-badge status-in-progress">輸送中</span>
+                                <button class="btn btn-primary btn-small" onclick="trackJob('JOB001')">追跡</button>
+                                <button class="btn btn-info btn-small" onclick="showJobDetails('JOB001')">詳細</button>
+                            </div>
+                        </div>
+                        
+                        <div class="job-item" data-job-id="JOB002" data-status="matched" data-price="28000" data-date="2024-06-15">
+                            <div class="job-info">
+                                <h4>ホンダ フィット 2020年</h4>
+                                <p>📍 埼玉県さいたま市 → 千葉県船橋市</p>
+                                <p>💰 ¥28,000</p>
+                                <p>⏰ 2024/06/15 14:00 希望</p>
+                            </div>
+                            <div class="job-status">
+                                <span class="status-badge status-matched">ドライバー確定</span>
+                                <button class="btn btn-secondary btn-small" onclick="showJobDetails('JOB002')">詳細</button>
+                                <button class="btn btn-warning btn-small" onclick="updateJobStatus('JOB002', 'in-progress')">開始</button>
+                            </div>
+                        </div>
+                        
+                        <div class="job-item" data-job-id="JOB003" data-status="pending" data-price="25000" data-date="2024-06-16">
+                            <div class="job-info">
+                                <h4>日産 ノート 2018年</h4>
+                                <p>📍 東京都港区 → 神奈川県川崎市</p>
+                                <p>💰 ¥25,000</p>
+                                <p>⏰ 2024/06/16 10:00 希望</p>
+                            </div>
+                            <div class="job-status">
+                                <span class="status-badge status-pending">マッチング中</span>
+                                <button class="btn btn-secondary btn-small" onclick="editJob('JOB003')">編集</button>
+                                <button class="btn btn-primary btn-small" onclick="cancelJob('JOB003')">キャンセル</button>
+                            </div>
+                        </div>
+                        
+                        <div class="job-item" data-job-id="JOB004" data-status="completed" data-price="45000" data-date="2024-06-10">
+                            <div class="job-info">
+                                <h4>マツダ CX-5 2021年</h4>
+                                <p>📍 東京都渋谷区 → 群馬県高崎市</p>
+                                <p>💰 ¥45,000</p>
+                                <p>⏰ 完了 (2024/06/10)</p>
+                            </div>
+                            <div class="job-status">
+                                <span class="status-badge status-completed">完了</span>
+                                <button class="btn btn-success btn-small" onclick="reviewJob('JOB004')">レビュー</button>
+                                <button class="btn btn-info btn-small" onclick="showJobDetails('JOB004')">詳細</button>
+                            </div>
+                        </div>
+
+                        <div class="job-item" data-job-id="JOB005" data-status="completed" data-price="32000" data-date="2024-06-09">
+                            <div class="job-info">
+                                <h4>スズキ スイフト 2020年</h4>
+                                <p>📍 千葉県千葉市 → 茨城県つくば市</p>
+                                <p>💰 ¥32,000</p>
+                                <p>⏰ 完了 (2024/06/09)</p>
+                            </div>
+                            <div class="job-status">
+                                <span class="status-badge status-completed">完了</span>
+                                <button class="btn btn-success btn-small" onclick="reviewJob('JOB005')">レビュー</button>
+                                <button class="btn btn-info btn-small" onclick="showJobDetails('JOB005')">詳細</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">📊 最近の活動</div>
+                <div class="panel-content" id="activityFeed">
+                    <div class="activity-item" style="padding: 1rem 0; border-bottom: 1px solid #ecf0f1;">
+                        <h4 style="color: #27ae60;">✅ 輸送完了</h4>
+                        <p>マツダ CX-5 の輸送が完了しました</p>
+                        <small style="color: #7f8c8d;">2時間前</small>
+                    </div>
+                    
+                    <div class="activity-item" style="padding: 1rem 0; border-bottom: 1px solid #ecf0f1;">
+                        <h4 style="color: #3498db;">🚗 輸送開始</h4>
+                        <p>トヨタ プリウス の輸送が開始されました</p>
+                        <small style="color: #7f8c8d;">4時間前</small>
+                    </div>
+                    
+                    <div class="activity-item" style="padding: 1rem 0; border-bottom: 1px solid #ecf0f1;">
+                        <h4 style="color: #f39c12;">🤝 ドライバー決定</h4>
+                        <p>ホンダ フィット のドライバーが決定しました</p>
+                        <small style="color: #7f8c8d;">6時間前</small>
+                    </div>
+                    
+                    <div class="activity-item" style="padding: 1rem 0;">
+                        <h4 style="color: #9b59b6;">📝 新規依頼</h4>
+                        <p>日産 ノート の輸送依頼を登録しました</p>
+                        <small style="color: #7f8c8d;">8時間前</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新規依頼モーダル -->
+    <div id="newJobModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('newJobModal')">&times;</span>
+            <h2>新規輸送依頼</h2>
+            
+            <form id="newJobForm">
+                <div class="form-group">
+                    <label>車両情報</label>
+                    <input type="text" id="vehicleInfo" placeholder="メーカー・車種・年式" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>VIN番号</label>
+                    <input type="text" id="vinNumber" placeholder="車両識別番号">
+                </div>
+                
+                <div class="form-group">
+                    <label>受取場所</label>
+                    <input type="text" id="pickupLocation" placeholder="住所を入力" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>納車先</label>
+                    <input type="text" id="deliveryLocation" placeholder="住所を入力" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>希望日時</label>
+                    <input type="datetime-local" id="preferredDateTime" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>提示報酬（円）</label>
+                    <input type="number" id="offeredPrice" placeholder="30000" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>マッチング方式</label>
+                    <select id="matchingType">
+                        <option value="first-come">早い者勝ち</option>
+                        <option value="bidding">入札式</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>特記事項</label>
+                    <textarea id="specialNotes" placeholder="車両の状態、注意事項など" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">依頼を登録</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 追跡モーダル -->
+    <div id="trackingModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('trackingModal')">&times;</span>
+            <h2>リアルタイム追跡</h2>
+            
+            <div class="form-group">
+                <label>追跡する案件を選択</label>
+                <select id="trackingJobSelect" onchange="updateTrackingInfo()">
+                    <option value="JOB001">JOB001 - トヨタ プリウス (輸送中)</option>
+                    <option value="JOB002">JOB002 - ホンダ フィット (ドライバー確定)</option>
+                </select>
+            </div>
+            
+            <div class="tracking-info" id="trackingInfo">
+                <h3>トヨタ プリウス (JOB001)</h3>
+                <p><strong>ドライバー:</strong> 山田太郎</p>
+                <p><strong>現在位置:</strong> <span id="currentLocation">東京都品川区</span></p>
+                <p><strong>進捗:</strong> <span id="progressPercent">60</span>% 完了</p>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="trackingProgress" style="width: 60%;"></div>
+                </div>
+                
+                <p><strong>予定到着時刻:</strong> <span id="eta">15:30</span></p>
+                <p><strong>最終更新:</strong> <span id="lastUpdate">2分前</span></p>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                <p>🗺️ 地図表示（Google Maps API連携）</p>
+                <p style="margin-top: 0.5rem; color: #7f8c8d;">実際の実装では、ここにリアルタイム地図が表示されます</p>
+            </div>
+            
+            <div style="margin-top: 1rem;">
+                <h4>輸送ログ</h4>
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 0.5rem;" id="transportLog">
+                    <p>13:15 - 車両受取完了 📍</p>
+                    <p>13:20 - 輸送開始</p>
+                    <p>14:30 - 中間地点通過</p>
+                    <p>15:10 - 目的地付近到着</p>
+                </div>
+            </div>
+            
+            <button class="btn btn-info" onclick="refreshTracking()" style="margin-top: 1rem;">🔄 更新</button>
+        </div>
+    </div>
+
+    <!-- 設定モーダル -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('settingsModal')">&times;</span>
+            <h2>設定</h2>
+            
+            <form id="settingsForm">
+                <div class="form-group">
+                    <label>通知設定</label>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="notifyMatching" checked> マッチング通知
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="notifyStart" checked> 輸送開始通知
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="notifyComplete" checked> 完了通知
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>デフォルト受取場所</label>
+                    <input type="text" id="defaultPickup" placeholder="よく使用する受取場所">
+                </div>
+                
+                <div class="form-group">
+                    <label>支払い方法</label>
+                    <select id="paymentMethod">
+                        <option value="credit">クレジットカード</option>
+                        <option value="bank">銀行振込</option>
+                        <option value="paypay">PayPay</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>メール通知</label>
+                    <input type="email" id="notificationEmail" placeholder="通知先メールアドレス">
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">設定を保存</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 詳細モーダル -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('detailsModal')">&times;</span>
+            <h2>案件詳細</h2>
+            <div id="jobDetailsContent">
+                <!-- 動的にコンテンツが挿入されます -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 編集モーダル -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editModal')">&times;</span>
+            <h2>案件編集</h2>
+            <form id="editJobForm">
+                <input type="hidden" id="editJobId">
+                <div class="form-group">
+                    <label>車両情報</label>
+                    <input type="text" id="editVehicleInfo" required>
+                </div>
+                <div class="form-group">
+                    <label>受取場所</label>
+                    <input type="text" id="editPickupLocation" required>
+                </div>
+                <div class="form-group">
+                    <label>納車先</label>
+                    <input type="text" id="editDeliveryLocation" required>
+                </div>
+                <div class="form-group">
+                    <label>希望日時</label>
+                    <input type="datetime-local" id="editDateTime" required>
+                </div>
+                <div class="form-group">
+                    <label>提示報酬（円）</label>
+                    <input type="number" id="editPrice" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">更新</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- レビューモーダル -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('reviewModal')">&times;</span>
+            <h2>ドライバーレビュー</h2>
+            <div id="reviewContent">
+                <p><strong>案件ID:</strong> <span id="reviewJobId"></span></p>
+                <p><strong>ドライバー:</strong> <span id="reviewDriverName"></span></p>
+                
+                <div class="form-group">
+                    <label>評価</label>
+                    <div class="star-rating" id="starRating">
+                        <span class="star" data-rating="1">★</span>
+                        <span class="star" data-rating="2">★</span>
+                        <span class="star" data-rating="3">★</span>
+                        <span class="star" data-rating="4">★</span>
+                        <span class="star" data-rating="5">★</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>コメント</label>
+                    <textarea id="reviewComment" placeholder="ドライバーの対応はいかがでしたか？" rows="4"></textarea>
+                </div>
+                
+                <button class="btn btn-primary" onclick="submitReview()" style="width: 100%;">レビューを送信</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let jobs = [];
+        let currentFilter = 'all';
+        let selectedRating = 0;
+
+        // 通知表示
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notification.className = `notification ${type}`;
+            notificationText.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // モーダル制御
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // ジョブトラッキング
+        function trackJob(jobId) {
+            const select = document.getElementById('trackingJobSelect');
+            select.value = jobId;
+            openModal('trackingModal');
+            updateTrackingInfo();
+        }
+
+        // 追跡情報更新
+        function updateTrackingInfo() {
+            const jobId = document.getElementById('trackingJobSelect').value;
+            const trackingData = {
+                'JOB001': {
+                    vehicle: 'トヨタ プリウス',
+                    driver: '山田太郎',
+                    location: '東京都品川区',
+                    progress: 60,
+                    eta: '15:30',
+                    lastUpdate: '2分前'
+                },
+                'JOB002': {
+                    vehicle: 'ホンダ フィット',
+                    driver: '佐藤次郎',
+                    location: '埼玉県さいたま市',
+                    progress: 0,
+                    eta: '明日 14:00',
+                    lastUpdate: '10分前'
+                }
+            };
+            
+            const data = trackingData[jobId];
+            if (data) {
+                document.querySelector('#trackingInfo h3').textContent = `${data.vehicle} (${jobId})`;
+                document.querySelector('#trackingInfo p:nth-child(2)').innerHTML = `<strong>ドライバー:</strong> ${data.driver}`;
+                document.getElementById('currentLocation').textContent = data.location;
+                document.getElementById('progressPercent').textContent = data.progress;
+                document.getElementById('trackingProgress').style.width = data.progress + '%';
+                document.getElementById('eta').textContent = data.eta;
+                document.getElementById('lastUpdate').textContent = data.lastUpdate;
+            }
+        }
+
+        // 追跡情報リフレッシュ
+        function refreshTracking() {
+            showNotification('追跡情報を更新しました', 'success');
+            const progress = document.getElementById('trackingProgress');
+            const percent = document.getElementById('progressPercent');
+            const currentProgress = parseInt(percent.textContent);
+            
+            if (currentProgress < 100) {
+                const newProgress = Math.min(currentProgress + 5, 100);
+                percent.textContent = newProgress;
+                progress.style.width = newProgress + '%';
+            }
+        }
+
+        // ジョブ詳細表示
+        function showJobDetails(jobId) {
+            const jobDetails = {
+                'JOB001': {
+                    id: 'JOB001',
+                    vehicle: 'トヨタ プリウス 2019年',
+                    vin: 'JTDKB20U993548625',
+                    pickup: '東京都新宿区西新宿1-1-1',
+                    delivery: '神奈川県横浜市中区山下町1-1',
+                    datetime: '2024/06/14 9:00',
+                    price: '¥35,000',
+                    status: '輸送中',
+                    driver: '山田太郎',
+                    driverPhone: '090-1234-5678',
+                    notes: '車両は良好な状態です。傷なし。'
+                },
+                'JOB002': {
+                    id: 'JOB002',
+                    vehicle: 'ホンダ フィット 2020年',
+                    vin: 'JHMGE8H36AS028439',
+                    pickup: '埼玉県さいたま市大宮区大門町1-1',
+                    delivery: '千葉県船橋市本町1-1-1',
+                    datetime: '2024/06/15 14:00',
+                    price: '¥28,000',
+                    status: 'ドライバー確定',
+                    driver: '佐藤次郎',
+                    driverPhone: '090-9876-5432',
+                    notes: '特になし'
+                }
+            };
+            
+            const details = jobDetails[jobId] || {
+                id: jobId,
+                vehicle: '車両情報',
+                pickup: '受取場所',
+                delivery: '納車先',
+                datetime: '日時',
+                price: '価格',
+                status: 'ステータス',
+                driver: 'ドライバー名',
+                notes: '特記事項'
+            };
+            
+            const content = `
+                <div style="display: grid; gap: 1rem;">
+                    <div><strong>案件ID:</strong> ${details.id}</div>
+                    <div><strong>車両:</strong> ${details.vehicle}</div>
+                    <div><strong>VIN:</strong> ${details.vin || '未登録'}</div>
+                    <div><strong>受取場所:</strong> ${details.pickup}</div>
+                    <div><strong>納車先:</strong> ${details.delivery}</div>
+                    <div><strong>日時:</strong> ${details.datetime}</div>
+                    <div><strong>報酬:</strong> ${details.price}</div>
+                    <div><strong>ステータス:</strong> <span class="status-badge status-${details.status === '輸送中' ? 'in-progress' : 'matched'}">${details.status}</span></div>
+                    <div><strong>ドライバー:</strong> ${details.driver}</div>
+                    <div><strong>連絡先:</strong> ${details.driverPhone || '未登録'}</div>
+                    <div><strong>特記事項:</strong> ${details.notes}</div>
+                </div>
+            `;
+            
+            document.getElementById('jobDetailsContent').innerHTML = content;
+            openModal('detailsModal');
+        }
+
+        // ジョブ編集
+        function editJob(jobId) {
+            const jobData = {
+                'JOB003': {
+                    vehicle: '日産 ノート 2018年',
+                    pickup: '東京都港区',
+                    delivery: '神奈川県川崎市',
+                    datetime: '2024-06-16T10:00',
+                    price: 25000
+                }
+            };
+            
+            const data = jobData[jobId];
+            if (data) {
+                document.getElementById('editJobId').value = jobId;
+                document.getElementById('editVehicleInfo').value = data.vehicle;
+                document.getElementById('editPickupLocation').value = data.pickup;
+                document.getElementById('editDeliveryLocation').value = data.delivery;
+                document.getElementById('editDateTime').value = data.datetime;
+                document.getElementById('editPrice').value = data.price;
+            }
+            
+            openModal('editModal');
+        }
+
+        // ジョブキャンセル
+        function cancelJob(jobId) {
+            if (confirm(`案件 ${jobId} をキャンセルしますか？`)) {
+                showNotification(`案件 ${jobId} をキャンセルしました`, 'warning');
+                // 実際の実装では、ここでAPIコールを行う
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            }
+        }
+
+        // ステータス更新
+        function updateJobStatus(jobId, newStatus) {
+            if (confirm(`案件 ${jobId} のステータスを更新しますか？`)) {
+                showNotification(`案件 ${jobId} のステータスを更新しました`, 'success');
+                // 実際の実装では、ここでAPIコールを行う
+            }
+        }
+
+        // レビュー画面表示
+        function reviewJob(jobId) {
+            const reviewData = {
+                'JOB004': { driver: '田中三郎' },
+                'JOB005': { driver: '鈴木四郎' }
+            };
+            
+            document.getElementById('reviewJobId').textContent = jobId;
+            document.getElementById('reviewDriverName').textContent = reviewData[jobId]?.driver || 'ドライバー名';
+            
+            // スター評価の初期化
+            selectedRating = 0;
+            document.querySelectorAll('.star').forEach(star => {
+                star.classList.remove('active');
+            });
+            
+            openModal('reviewModal');
+        }
+
+        // レビュー送信
+        function submitReview() {
+            const comment = document.getElementById('reviewComment').value;
+            
+            if (selectedRating === 0) {
+                alert('評価を選択してください');
+                return;
+            }
+            
+            showNotification('レビューを送信しました', 'success');
+            closeModal('reviewModal');
+            
+            // 実際の実装では、ここでAPIコールを行う
+        }
+
+        // フィルタリング
+        function filterJobs(status) {
+            currentFilter = status;
+            const items = document.querySelectorAll('.job-item');
+            
+            items.forEach(item => {
+                if (status === 'all') {
+                    item.style.display = 'flex';
+                } else {
+                    const itemStatus = item.getAttribute('data-status');
+                    item.style.display = itemStatus === status ? 'flex' : 'none';
+                }
+            });
+            
+            updateStats();
+        }
+
+        // フィルター適用
+        function applyFilters() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.job-item');
+            
+            items.forEach(item => {
+                let show = true;
+                
+                // ステータスフィルター
+                if (statusFilter && item.getAttribute('data-status') !== statusFilter) {
+                    show = false;
+                }
+                
+                // テキスト検索
+                if (searchText && !item.textContent.toLowerCase().includes(searchText)) {
+                    show = false;
+                }
+                
+                item.style.display = show ? 'flex' : 'none';
+            });
+        }
+
+        // ソート機能
+        function applySorting() {
+            const sortBy = document.getElementById('sortBy').value;
+            const jobList = document.getElementById('jobList');
+            const items = Array.from(jobList.querySelectorAll('.job-item'));
+            
+            items.sort((a, b) => {
+                switch(sortBy) {
+                    case 'date':
+                        return new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date'));
+                    case 'price':
+                        return parseInt(b.getAttribute('data-price')) - parseInt(a.getAttribute('data-price'));
+                    case 'status':
+                        return a.getAttribute('data-status').localeCompare(b.getAttribute('data-status'));
+                    default:
+                        return 0;
+                }
+            });
+            
+            items.forEach(item => jobList.appendChild(item));
+        }
+
+        // 統計更新
+        function updateStats() {
+            const items = document.querySelectorAll('.job-item');
+            let total = 0, completed = 0, inProgress = 0, pending = 0;
+            
+            items.forEach(item => {
+                if (item.style.display !== 'none') {
+                    total++;
+                    const status = item.getAttribute('data-status');
+                    if (status === 'completed') completed++;
+                    else if (status === 'in-progress') inProgress++;
+                    else if (status === 'pending') pending++;
+                }
+            });
+            
+            document.getElementById('totalJobs').textContent = total;
+            document.getElementById('completedJobs').textContent = completed;
+            document.getElementById('inProgressJobs').textContent = inProgress;
+            document.getElementById('pendingJobs').textContent = pending;
+        }
+
+        // フォーム送信処理
+        document.getElementById('newJobForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const vehicleInfo = document.getElementById('vehicleInfo').value;
+            const pickupLocation = document.getElementById('pickupLocation').value;
+            const deliveryLocation = document.getElementById('deliveryLocation').value;
+            const price = document.getElementById('offeredPrice').value;
+            
+            showNotification('新規依頼が登録されました！', 'success');
+            closeModal('newJobModal');
+            
+            // 新しい活動を追加
+            addActivity('📝 新規依頼', `${vehicleInfo} の輸送依頼を登録しました`, 'たった今');
+            
+            // 実際の実装では、ここでAPIコールを行う
+            setTimeout(() => {
+                showNotification('🎉 マッチング成功！3名のドライバーから応募がありました', 'info');
+                addActivity('🤝 ドライバー応募', `${vehicleInfo} に3名のドライバーが応募しました`, '1分前');
+            }, 3000);
+            
+            // フォームをリセット
+            this.reset();
+        });
+
+        // 編集フォーム送信
+        document.getElementById('editJobForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const jobId = document.getElementById('editJobId').value;
+            showNotification(`案件 ${jobId} を更新しました`, 'success');
+            closeModal('editModal');
+        });
+
+        // 設定フォーム送信
+        document.getElementById('settingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showNotification('設定を保存しました', 'success');
+            closeModal('settingsModal');
+        });
+
+        // 活動追加
+        function addActivity(title, description, time) {
+            const activityFeed = document.getElementById('activityFeed');
+            const newActivity = document.createElement('div');
+            newActivity.className = 'activity-item';
+            newActivity.style.cssText = 'padding: 1rem 0; border-bottom: 1px solid #ecf0f1;';
+            
+            const color = title.includes('完了') ? '#27ae60' : 
+                         title.includes('開始') ? '#3498db' :
+                         title.includes('ドライバー') ? '#f39c12' : '#9b59b6';
+            
+            newActivity.innerHTML = `
+                <h4 style="color: ${color};">${title}</h4>
+                <p>${description}</p>
+                <small style="color: #7f8c8d;">${time}</small>
+            `;
+            
+            activityFeed.insertBefore(newActivity, activityFeed.firstChild);
+        }
+
+        // スター評価
+        document.querySelectorAll('.star').forEach(star => {
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.getAttribute('data-rating'));
+                document.querySelectorAll('.star').forEach((s, index) => {
+                    s.classList.toggle('active', index < selectedRating);
+                });
+            });
+            
+            star.addEventListener('mouseenter', function() {
+                const rating = parseInt(this.getAttribute('data-rating'));
+                document.querySelectorAll('.star').forEach((s, index) => {
+                    s.style.color = index < rating ? '#f39c12' : '#ddd';
+                });
+            });
+        });
+
+        document.getElementById('starRating').addEventListener('mouseleave', function() {
+            document.querySelectorAll('.star').forEach((s, index) => {
+                s.style.color = s.classList.contains('active') ? '#f39c12' : '#ddd';
+            });
+        });
+
+        // モーダル外クリックで閉じる
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // 進捗バーアニメーション
+        function animateProgress() {
+            setInterval(() => {
+                const progressBars = document.querySelectorAll('.job-item[data-status="in-progress"]');
+                progressBars.forEach(() => {
+                    const randomUpdate = Math.random();
+                    if (randomUpdate > 0.8) {
+                        showNotification('輸送車両が中間地点を通過しました', 'info');
+                        addActivity('📍 位置更新', '輸送中の車両が中間地点を通過しました', 'たった今');
+                    }
+                });
+            }, 30000);
+        }
+
+        // ページ読み込み後の初期化
+        window.addEventListener('load', function() {
+            updateStats();
+            animateProgress();
+            
+            // デモ用のリアルタイム更新
+            setInterval(() => {
+                const activities = [
+                    { title: '🚗 新しいドライバー', desc: '新しいドライバーが応募しました', time: 'たった今' },
+                    { title: '📍 位置更新', desc: '輸送中の車両が中間地点を通過しました', time: '1分前' },
+                    { title: '⭐ 評価更新', desc: 'ドライバーの評価が更新されました', time: '2分前' }
+                ];
+                
+                const random = Math.random();
+                if (random > 0.7) {
+                    const activity = activities[Math.floor(Math.random() * activities.length)];
+                    showNotification(activity.desc, 'info');
+                }
+            }, 10000);
+        });
+    </script>
+</body>
+</html>

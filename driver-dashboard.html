@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ドライバーダッシュボード - CarGo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #27ae60;
+        }
+
+        .driver-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .rating {
+            display: flex;
+            justify-content: center;
+            gap: 0.2rem;
+            margin-top: 0.5rem;
+        }
+
+        .star {
+            color: #f39c12;
+            font-size: 1.2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: #34495e;
+            color: white;
+            padding: 1rem 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-content {
+            padding: 1.5rem;
+        }
+
+        .search-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 8px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .job-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .job-card {
+            border: 1px solid #ecf0f1;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            background: #f8f9fa;
+            transition: all 0.3s;
+        }
+
+        .job-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .job-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .job-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .job-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .route-info {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .route-distance {
+            text-align: center;
+            padding: 0.5rem;
+            background: #3498db;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .job-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .current-job {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .current-job h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .job-progress {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .progress-step {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .progress-step.completed {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .progress-step.active {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .earnings-chart {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .driver-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .job-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .job-progress {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">🚗 CarGo - ドライバー</div>
+            <div class="user-info">
+                <span>山田太郎 様</span>
+                <a href="index.html" class="btn btn-secondary">ホームに戻る</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">ドライバーダッシュボード</h1>
+            <p>スキマ時間を有効活用して安全・確実に収益を獲得しましょう</p>
+            
+            <div class="driver-stats">
+                <div class="stat-card">
+                    <div class="stat-value">4.8</div>
+                    <div>評価スコア</div>
+                    <div class="rating">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">24</div>
+                    <div>今月の完了件数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">¥180,000</div>
+                    <div>今月の収益</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">98%</div>
+                    <div>安全運転スコア</div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-success" onclick="startWork()">🚗 作業開始</button>
+                <button class="btn btn-primary" onclick="openModal('earningsModal')">💰 収益確認</button>
+                <button class="btn btn-secondary" onclick="openModal('profileModal')">👤 プロフィール</button>
+                <button class="btn btn-secondary" onclick="openModal('contactModal')">📞 お問い合わせ</button>
+            </div>
+        </div>
+
+        <!-- 現在の作業 -->
+        <div class="current-job" id="currentJob" style="display: none;">
+            <h3>🚛 現在の輸送作業</h3>
+            <div class="job-progress">
+                <div class="progress-step completed">
+                    <div>📍</div>
+                    <div>受取完了</div>
+                </div>
+                <div class="progress-step active">
+                    <div>🚗</div>
+                    <div>輸送中</div>
+                </div>
+                <div class="progress-step">
+                    <div>📍</div>
+                    <div>納車</div>
+                </div>
+                <div class="progress-step">
+                    <div>💰</div>
+                    <div>完了</div>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4>トヨタ プリウス 2019年</h4>
+                    <p>東京都新宿区 → 神奈川県横浜市</p>
+                    <p>報酬: ¥35,000</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="openModal('deliveryModal')">配送完了</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="panel">
+                <div class="panel-header">
+                    🔍 案件検索
+                    <button class="btn btn-primary" onclick="refreshJobs()">更新</button>
+                </div>
+                <div class="panel-content">
+                    <div class="search-filters">
+                        <div class="filter-group">
+                            <label>エリア</label>
+                            <select>
+                                <option>全地域</option>
+                                <option>東京都</option>
+                                <option>神奈川県</option>
+                                <option>埼玉県</option>
+                                <option>千葉県</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>距離</label>
+                            <select>
+                                <option>指定なし</option>
+                                <option>50km以内</option>
+                                <option>100km以内</option>
+                                <option>200km以内</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>最低報酬</label>
+                            <input type="number" placeholder="円" value="20000">
+                        </div>
+                        <div class="filter-group">
+                            <label>日時</label>
+                            <input type="date">
+                        </div>
+                    </div>
+
+                    <div class="job-list">
+                        <div class="job-card">
+                            <div class="job-header">
+                                <div class="job-title">トヨタ プリウス 2019年</div>
+                                <div class="job-price">¥35,000</div>
+                            </div>
+                            
+                            <div class="route-info">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <span>📍 東京都新宿区</span>
+                                    <span>📍 神奈川県横浜市</span>
+                                </div>
+                                <div class="route-distance">約45km / 予想時間: 1時間30分</div>
+                            </div>
+                            
+                            <div class="job-details">
+                                <div class="detail-item">
+                                    <span>⏰</span>
+                                    <span>2024/06/14 9:00希望</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span>🏢</span>
+                                    <span>田中商会</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span>🚗</span>
+                                    <span>低燃費車・状態良好</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span>💳</span>
+                                    <span>即日支払い</span>
+                                </div>
+                            </div>
+                            
+                            <div class="job-actions">
+                                <button class="btn btn-secondary" onclick="viewJobDetails('JOB001')">詳細</button>
+                                <button class="btn btn-success" onclick="applyJob('JOB001')">応募</button>
+                            </div>
+                        </div>
+
+                        <div class="job-card">
+                            <div class="job-header">
+                                <div class="job-title">ホンダ フィット 2020年</div>
+                                <div class="job-price">¥28,000</div>
+                            </div>
+                            
+                            <div class="route-info">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <span>📍 埼玉県さいたま市</span>
+                                    <span>📍 千葉県船橋市</span>
+                                </div>
+                                <div class="route-distance">約35km / 予想時間: 1時間15分</div>
+                            </div>
+                            
+                            <div class="job-details">
+                                <div class="detail-item">
+                                    <span>⏰</span>
+                                    <span>2024/06/15 14:00希望</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span>🏢</span>
+                                    <span>カーランド</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span>🚗</span>
+                                    <span>コンパクトカー</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span>💳</span>
+                                    <span>翌営業日支払い</span>
+                                </div>
+                            </div>
+                            
+                            <div class="job-actions">
+                                <button class="btn btn-secondary" onclick="viewJobDetails('JOB002')">詳細</button>
+                                <button class="btn btn-success" onclick="applyJob('JOB002')">応募</button>
+                            </div>
+                        </div>
+
+                        <div class="job-card">
+                            <div class="job-header">
+                                <div class="job-title">マツダ CX-5 2021年</div>
+                                <div class="job-price">¥45,000</div>
+                            </div>
+                            
+                            <div class="route-info">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <span>📍 東京都渋谷区</span>
+                                    <span>📍 群馬県高崎市</span>
+                                </div>
+                                <div class="route-distance">約120km / 予想時間: 2時間30分</div>
+                            </div>
+                            
+                            <div class="job-details">
+                                <div class="detail-item">
+                                    <span>⏰</span>
+                                    <span>2024/06/16 10:00希望</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span>🏢</span>
+                                    <span>グンマオート</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span>🚗</span>
+                                    <span>SUV・高年式</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span>💳</span>
+                                    <span>即日支払い</span>
+                                </div>
+                            </div>
+                            
+                            <div class="job-actions">
+                                <button class="btn btn-secondary" onclick="viewJobDetails('JOB003')">詳細</button>
+                                <button class="btn btn-success" onclick="applyJob('JOB003')">応募</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">📋 作業履歴</div>
+                <div class="panel-content">
+                    <div class="job-list">
+                        <div style="border-bottom: 1px solid #ecf0f1; padding: 1rem 0;">
+                            <h4 style="color: #27ae60;">✅ 完了</h4>
+                            <p><strong>日産 ノート 2018年</strong></p>
+                            <p>港区 → 川崎市 | ¥25,000</p>
+                            <p style="color: #7f8c8d; font-size: 0.9rem;">2024/06/13 完了</p>
+                            <div style="margin-top: 0.5rem;">
+                                <span style="background: #27ae60; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">評価: ★★★★★</span>
+                            </div>
+                        </div>
+                        
+                        <div style="border-bottom: 1px solid #ecf0f1; padding: 1rem 0;">
+                            <h4 style="color: #3498db;">🚗 進行中</h4>
+                            <p><strong>トヨタ プリウス 2019年</strong></p>
+                            <p>新宿区 → 横浜市 | ¥35,000</p>
+                            <p style="color: #7f8c8d; font-size: 0.9rem;">2024/06/14 輸送中</p>
+                            <div style="margin-top: 0.5rem;">
+                                <button class="btn btn-primary" onclick="showCurrentJob()">進捗確認</button>
+                            </div>
+                        </div>
+                        
+                        <div style="border-bottom: 1px solid #ecf0f1; padding: 1rem 0;">
+                            <h4 style="color: #f39c12;">⏰ 予定</h4>
+                            <p><strong>ホンダ フィット 2020年</strong></p>
+                            <p>さいたま市 → 船橋市 | ¥28,000</p>
+                            <p style="color: #7f8c8d; font-size: 0.9rem;">2024/06/15 14:00 開始予定</p>
+                        </div>
+                        
+                        <div style="padding: 1rem 0;">
+                            <h4 style="color: #27ae60;">✅ 完了</h4>
+                            <p><strong>スバル インプレッサ 2020年</strong></p>
+                            <p>世田谷区 → 立川市 | ¥30,000</p>
+                            <p style="color: #7f8c8d; font-size: 0.9rem;">2024/06/12 完了</p>
+                            <div style="margin-top: 0.5rem;">
+                                <span style="background: #27ae60; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">評価: ★★★★☆</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 収益モーダル -->
+    <div id="earningsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('earningsModal')">&times;</span>
+            <h2>💰 収益レポート</h2>
+            
+            <div class="earnings-chart">
+                <h3>今月の収益: ¥180,000</h3>
+                <p>前月比: +15% ↗️</p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                    <h5 style="color: #7f8c8d; margin-bottom: 0.5rem;">今日</h5>
+                    <p style="font-size: 1.3rem; font-weight: bold; color: #27ae60;">¥35,000</p>
+                </div>
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                    <h5 style="color: #7f8c8d; margin-bottom: 0.5rem;">今週</h5>
+                    <p style="font-size: 1.3rem; font-weight: bold; color: #3498db;">¥85,000</p>
+                </div>
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                    <h5 style="color: #7f8c8d; margin-bottom: 0.5rem;">今月</h5>
+                    <p style="font-size: 1.3rem; font-weight: bold; color: #e74c3c;">¥180,000</p>
+                </div>
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                    <h5 style="color: #7f8c8d; margin-bottom: 0.5rem;">今年</h5>
+                    <p style="font-size: 1.3rem; font-weight: bold; color: #9b59b6;">¥2,160,000</p>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
+                    <h4>完了件数</h4>
+                    <p style="font-size: 1.5rem; font-weight: bold; color: #27ae60;">24件</p>
+                    <p style="color: #7f8c8d; font-size: 0.9rem;">平均: 1.2件/日</p>
+                </div>
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
+                    <h4>平均報酬</h4>
+                    <p style="font-size: 1.5rem; font-weight: bold; color: #3498db;">¥7,500</p>
+                    <p style="color: #7f8c8d; font-size: 0.9rem;">最高: ¥45,000</p>
+                </div>
+            </div>
+            
+            <h4>エリア別収益</h4>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                    <span>東京都内</span>
+                    <span style="font-weight: bold;">¥72,000 (40%)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                    <span>神奈川県</span>
+                    <span style="font-weight: bold;">¥54,000 (30%)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                    <span>埼玉県</span>
+                    <span style="font-weight: bold;">¥36,000 (20%)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                    <span>千葉県</span>
+                    <span style="font-weight: bold;">¥18,000 (10%)</span>
+                </div>
+            </div>
+            
+            <h4>ボーナス・インセンティブ</h4>
+            <div style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                <p style="font-weight: bold;">🎯 今月のボーナス獲得状況</p>
+                <p>安全運転ボーナス: ¥10,000 ✅</p>
+                <p>20件達成ボーナス: ¥15,000 ✅</p>
+                <p>顧客満足度ボーナス: ¥5,000 ✅</p>
+                <p style="margin-top: 0.5rem; font-size: 1.2rem;">合計ボーナス: ¥30,000</p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <button class="btn btn-primary" onclick="downloadReport()">📊 詳細レポート</button>
+                <button class="btn btn-success" onclick="requestPayout()">💸 出金申請</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 配送完了モーダル -->
+    <div id="deliveryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('deliveryModal')">&times;</span>
+            <h2>🚚 配送完了報告</h2>
+            
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                <h3>トヨタ プリウス 2019年</h3>
+                <p>東京都新宿区 → 神奈川県横浜市</p>
+                <p>報酬: ¥35,000</p>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">車両状態確認</label>
+                <div style="display: flex; gap: 1rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" checked> 外観確認完了
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" checked> 走行距離記録完了
+                    </label>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">受取者サイン</label>
+                <div style="border: 2px dashed #ccc; height: 150px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                    <p style="color: #7f8c8d;">タッチして署名してください</p>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">特記事項</label>
+                <textarea style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px;" placeholder="何か問題があれば記入してください"></textarea>
+            </div>
+            
+            <button class="btn btn-success" style="width: 100%;" onclick="completeDelivery()">配送完了</button>
+        </div>
+    </div>
+
+    <!-- プロフィールモーダル -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('profileModal')">&times;</span>
+            <h2>👤 プロフィール設定</h2>
+            
+            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="width: 100px; height: 100px; background: #ecf0f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+                    👤
+                </div>
+                <div>
+                    <h3>山田太郎</h3>
+                    <p style="color: #7f8c8d;">ドライバーID: DRV-2024-0123</p>
+                    <p style="color: #7f8c8d;">登録日: 2024年1月15日</p>
+                    <div style="margin-top: 0.5rem;">
+                        <span style="background: #27ae60; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">ゴールドドライバー</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">稼働エリア</label>
+                <select style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px;">
+                    <option>東京都・神奈川県・埼玉県・千葉県</option>
+                    <option>東京都のみ</option>
+                    <option>関東全域</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">稼働可能時間</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <input type="time" value="09:00" style="padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px;">
+                    <input type="time" value="18:00" style="padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px;">
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">最低希望報酬</label>
+                <input type="number" value="20000" style="width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px;" placeholder="円">
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">車両タイプ</label>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" checked> 軽自動車
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" checked> 普通車
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" checked> SUV
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox"> ミニバン
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox"> トラック
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox"> 高級車
+                    </label>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">通知設定</label>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" checked> 新着案件の通知
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" checked> 高報酬案件の優先通知
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" checked> リマインダー通知
+                    </label>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%;">設定を保存</button>
+        </div>
+    </div>
+    
+    <!-- 連絡先モーダル -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('contactModal')">&times;</span>
+            <h2>📞 お問い合わせ</h2>
+            
+            <div style="display: grid; gap: 1rem; margin-bottom: 1rem;">
+                <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="callSupport()">
+                    📞 サポートセンターに電話<br>
+                    <small>0120-XXX-XXXX (24時間対応)</small>
+                </button>
+                
+                <button class="btn btn-success" style="width: 100%; padding: 1rem;" onclick="openChat()">
+                    💬 チャットサポート<br>
+                    <small>平均応答時間: 2分</small>
+                </button>
+                
+                <button class="btn btn-secondary" style="width: 100%; padding: 1rem;" onclick="sendEmail()">
+                    ✉️ メールで問い合わせ<br>
+                    <small>support@cargo.jp</small>
+                </button>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
+                <h4>よくある質問</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #ecf0f1;">
+                        <a href="#" style="color: #3498db; text-decoration: none;">報酬の支払いタイミングについて</a>
+                    </li>
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #ecf0f1;">
+                        <a href="#" style="color: #3498db; text-decoration: none;">事故・トラブル時の対応</a>
+                    </li>
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #ecf0f1;">
+                        <a href="#" style="color: #3498db; text-decoration: none;">キャンセルポリシー</a>
+                    </li>
+                    <li style="padding: 0.5rem 0;">
+                        <a href="#" style="color: #3498db; text-decoration: none;">保険について</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let currentJobData = null;
+        let jobsData = [
+            {
+                id: 'JOB001',
+                title: 'トヨタ プリウス 2019年',
+                price: 35000,
+                from: '東京都新宿区',
+                to: '神奈川県横浜市',
+                distance: '45km',
+                time: '1時間30分',
+                date: '2024/06/14 9:00希望',
+                company: '田中商会',
+                details: '低燃費車・状態良好',
+                payment: '即日支払い',
+                status: 'available'
+            },
+            {
+                id: 'JOB002',
+                title: 'ホンダ フィット 2020年',
+                price: 28000,
+                from: '埼玉県さいたま市',
+                to: '千葉県船橋市',
+                distance: '35km',
+                time: '1時間15分',
+                date: '2024/06/15 14:00希望',
+                company: 'カーランド',
+                details: 'コンパクトカー',
+                payment: '翌営業日支払い',
+                status: 'available'
+            },
+            {
+                id: 'JOB003',
+                title: 'マツダ CX-5 2021年',
+                price: 45000,
+                from: '東京都渋谷区',
+                to: '群馬県高崎市',
+                distance: '120km',
+                time: '2時間30分',
+                date: '2024/06/16 10:00希望',
+                company: 'グンマオート',
+                details: 'SUV・高年式',
+                payment: '即日支払い',
+                status: 'available'
+            }
+        ];
+        
+        let earnings = {
+            today: 35000,
+            week: 180000,
+            month: 180000,
+            completedJobs: 24,
+            avgReward: 7500
+        };
+
+        // モーダル関数
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            if (modalId === 'earningsModal') {
+                updateEarningsChart();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // 作業開始
+        function startWork() {
+            const currentJob = document.getElementById('currentJob');
+            currentJob.style.display = 'block';
+            currentJob.scrollIntoView({ behavior: 'smooth' });
+            
+            // アニメーション効果
+            currentJob.style.opacity = '0';
+            setTimeout(() => {
+                currentJob.style.transition = 'opacity 0.5s';
+                currentJob.style.opacity = '1';
+            }, 100);
+            
+            showToast('作業を開始しました！安全運転でお願いします。', 'success');
+            
+            // GPS追跡を開始
+            startGPSTracking();
+        }
+
+        // 現在の仕事を表示
+        function showCurrentJob() {
+            const currentJob = document.getElementById('currentJob');
+            currentJob.style.display = 'block';
+            currentJob.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 仕事に応募
+        function applyJob(jobId) {
+            const job = jobsData.find(j => j.id === jobId);
+            if (!job) return;
+            
+            // 応募確認ダイアログ
+            const confirmApply = confirm(`
+                ${job.title}に応募しますか？
+                
+                ルート: ${job.from} → ${job.to}
+                距離: ${job.distance}
+                報酬: ¥${job.price.toLocaleString()}
+                希望日時: ${job.date}
+            `);
+            
+            if (confirmApply) {
+                showToast(`${job.title}に応募しました！`, 'info');
+                
+                // 応募ボタンを変更
+                const applyBtn = event.target;
+                applyBtn.textContent = '応募済み';
+                applyBtn.disabled = true;
+                applyBtn.style.background = '#95a5a6';
+                
+                // 2秒後に承認通知
+                setTimeout(() => {
+                    showToast('応募が承認されました！詳細を確認して作業を開始してください。', 'success');
+                    updateJobHistory(job);
+                }, 2000);
+            }
+        }
+
+        // 仕事の詳細を表示
+        function viewJobDetails(jobId) {
+            const job = jobsData.find(j => j.id === jobId);
+            if (!job) return;
+            
+            const detailsModal = document.createElement('div');
+            detailsModal.className = 'modal';
+            detailsModal.style.display = 'block';
+            detailsModal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                    <h2>案件詳細 - ${job.title}</h2>
+                    
+                    <div style="margin: 1rem 0;">
+                        <h3>車両情報</h3>
+                        <p>車種: ${job.title}</p>
+                        <p>状態: ${job.details}</p>
+                        <p>特記事項: エンジン良好、禁煙車、ワンオーナー</p>
+                    </div>
+                    
+                    <div style="margin: 1rem 0;">
+                        <h3>ルート詳細</h3>
+                        <p>受取場所: ${job.from} (駐車場あり)</p>
+                        <p>納車場所: ${job.to} (事前連絡必要)</p>
+                        <p>推定距離: ${job.distance}</p>
+                        <p>推定時間: ${job.time}</p>
+                    </div>
+                    
+                    <div style="margin: 1rem 0;">
+                        <h3>報酬・支払い</h3>
+                        <p>報酬額: ¥${job.price.toLocaleString()}</p>
+                        <p>支払い: ${job.payment}</p>
+                        <p>高速代: 実費支給</p>
+                    </div>
+                    
+                    <div style="margin: 1rem 0;">
+                        <h3>荷主情報</h3>
+                        <p>会社名: ${job.company}</p>
+                        <p>評価: ★★★★☆ (4.5/5.0)</p>
+                        <p>取引実績: 156件</p>
+                    </div>
+                    
+                    <button class="btn btn-success" style="width: 100%; margin-top: 1rem;" 
+                            onclick="this.parentElement.parentElement.remove(); applyJob('${jobId}')">
+                        この案件に応募する
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(detailsModal);
+        }
+
+        // 案件リストを更新
+        function refreshJobs() {
+            const refreshBtn = event.target;
+            refreshBtn.disabled = true;
+            refreshBtn.textContent = '更新中...';
+            
+            // ローディングアニメーション
+            const jobList = document.querySelector('.job-list');
+            jobList.style.opacity = '0.5';
+            
+            setTimeout(() => {
+                // 新しい案件を追加
+                const newJobs = [
+                    {
+                        id: 'JOB004',
+                        title: '日産 セレナ 2022年',
+                        price: 42000,
+                        from: '千葉県千葉市',
+                        to: '茨城県つくば市',
+                        distance: '65km',
+                        time: '1時間45分',
+                        date: '2024/06/14 15:00希望',
+                        company: 'つくばモータース',
+                        details: 'ミニバン・ファミリーカー',
+                        payment: '即日支払い',
+                        status: 'available'
+                    },
+                    {
+                        id: 'JOB005',
+                        title: 'スズキ スイフト 2021年',
+                        price: 25000,
+                        from: '東京都練馬区',
+                        to: '東京都八王子市',
+                        distance: '30km',
+                        time: '1時間',
+                        date: '2024/06/14 11:00希望',
+                        company: '八王子カーセンター',
+                        details: 'コンパクトカー・低走行',
+                        payment: '翌日支払い',
+                        status: 'available'
+                    }
+                ];
+                
+                jobsData = [...newJobs, ...jobsData];
+                renderJobList();
+                
+                jobList.style.opacity = '1';
+                refreshBtn.disabled = false;
+                refreshBtn.textContent = '更新';
+                
+                showToast(`${newJobs.length}件の新しい案件が見つかりました！`, 'success');
+            }, 1500);
+        }
+
+        // 案件リストをレンダリング
+        function renderJobList() {
+            const jobList = document.querySelector('.job-list');
+            const filters = getFilters();
+            
+            let filteredJobs = jobsData.filter(job => {
+                // エリアフィルター
+                if (filters.area !== '全地域' && !job.from.includes(filters.area)) {
+                    return false;
+                }
+                
+                // 距離フィルター
+                if (filters.distance !== '指定なし') {
+                    const jobDistance = parseInt(job.distance);
+                    const maxDistance = parseInt(filters.distance);
+                    if (jobDistance > maxDistance) return false;
+                }
+                
+                // 最低報酬フィルター
+                if (filters.minReward && job.price < filters.minReward) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            jobList.innerHTML = filteredJobs.map(job => `
+                <div class="job-card">
+                    <div class="job-header">
+                        <div class="job-title">${job.title}</div>
+                        <div class="job-price">¥${job.price.toLocaleString()}</div>
+                    </div>
+                    
+                    <div class="route-info">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span>📍 ${job.from}</span>
+                            <span>📍 ${job.to}</span>
+                        </div>
+                        <div class="route-distance">約${job.distance} / 予想時間: ${job.time}</div>
+                    </div>
+                    
+                    <div class="job-details">
+                        <div class="detail-item">
+                            <span>⏰</span>
+                            <span>${job.date}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>🏢</span>
+                            <span>${job.company}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>🚗</span>
+                            <span>${job.details}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>💳</span>
+                            <span>${job.payment}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="job-actions">
+                        <button class="btn btn-secondary" onclick="viewJobDetails('${job.id}')">詳細</button>
+                        <button class="btn btn-success" onclick="applyJob('${job.id}')">応募</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            if (filteredJobs.length === 0) {
+                jobList.innerHTML = '<p style="text-align: center; padding: 2rem; color: #7f8c8d;">条件に合う案件が見つかりませんでした。</p>';
+            }
+        }
+
+        // フィルター値を取得
+        function getFilters() {
+            const filters = document.querySelectorAll('.filter-group select, .filter-group input');
+            return {
+                area: filters[0].value,
+                distance: filters[1].value,
+                minReward: parseInt(filters[2].value) || 0,
+                date: filters[3].value
+            };
+        }
+
+        // 配送完了処理
+        function completeDelivery() {
+            const checkboxes = document.querySelectorAll('#deliveryModal input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            
+            if (!allChecked) {
+                showToast('すべてのチェック項目を確認してください。', 'error');
+                return;
+            }
+            
+            // 配送完了処理
+            earnings.today += 35000;
+            earnings.month += 35000;
+            earnings.completedJobs += 1;
+            updateStats();
+            
+            showToast('配送完了！報酬 ¥35,000 が即座にアカウントに入金されました。', 'success');
+            closeModal('deliveryModal');
+            document.getElementById('currentJob').style.display = 'none';
+            
+            // 完了音を再生（実装では実際の音声ファイルを使用）
+            playCompletionSound();
+        }
+
+        // 統計情報を更新
+        function updateStats() {
+            document.querySelector('.stat-card:nth-child(2) .stat-value').textContent = earnings.completedJobs;
+            document.querySelector('.stat-card:nth-child(3) .stat-value').textContent = `¥${earnings.month.toLocaleString()}`;
+        }
+
+        // 収益チャートを更新
+        function updateEarningsChart() {
+            const chartContent = document.querySelector('.earnings-chart');
+            chartContent.innerHTML = `
+                <h3>今月の収益: ¥${earnings.month.toLocaleString()}</h3>
+                <p>前月比: +15% ↗️</p>
+                <canvas id="earningsCanvas" width="400" height="200" style="max-width: 100%;"></canvas>
+            `;
+            
+            // 簡易的なグラフを描画
+            drawEarningsChart();
+        }
+
+        // 収益グラフを描画
+        function drawEarningsChart() {
+            const canvas = document.getElementById('earningsCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const weeks = [45000, 52000, 48000, 35000];
+            const maxValue = Math.max(...weeks);
+            
+            // グラフを描画
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#27ae60';
+            
+            weeks.forEach((value, index) => {
+                const barHeight = (value / maxValue) * 150;
+                const x = index * 100 + 20;
+                const y = 180 - barHeight;
+                
+                ctx.fillRect(x, y, 80, barHeight);
+                ctx.fillStyle = '#2c3e50';
+                ctx.font = '12px Arial';
+                ctx.fillText(`第${index + 1}週`, x + 20, 195);
+                ctx.fillText(`¥${value.toLocaleString()}`, x + 10, y - 5);
+                ctx.fillStyle = '#27ae60';
+            });
+        }
+
+        // トースト通知
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 2rem;
+                background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+                color: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // GPS追跡
+        function startGPSTracking() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(
+                    position => {
+                        console.log('現在位置:', position.coords.latitude, position.coords.longitude);
+                        // 実際の実装では、サーバーに位置情報を送信
+                    },
+                    error => console.error('GPS エラー:', error),
+                    { enableHighAccuracy: true, maximumAge: 30000, timeout: 27000 }
+                );
+            }
+        }
+
+        // 完了音を再生
+        function playCompletionSound() {
+            // 実際の実装では音声ファイルを使用
+            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmFgU7k9n1unEiBC13yO/eizEIHWq+8+OWT' + 
+                             'QwOUKvn77VlGAc7k9j1unEiBC13yO/eizEIHWq+8+OWTQwOUKvn77VlGAc7k9j1unEiBC13yO/eizEIHWq+8+OWTQwOUKvn77VlGAc7k9j1unEiBC13yO/eizEIHWq+8+OWTQwOUKvn77VlGAc7k9j1unEiBC13yO/eizEIHWq+8+OWTQwOUKvn77VlGAc7k9j1unEiBC13yO/eizEIHWq+8+OWTQwOUKvn77VlGAc7k9j1unEiBC13yO/eizEIHWq+8+OWT' +
+                             'QwOUKvn77VlGAc7k9n1unAiBC14yO/eizEIHWq+8+OWTQwOUKvn77VlGAc7k9n1unAiBC14yO/eizEIHWq+8+OWTQwOUKvn77VlGAc7k9n1unAiBC14yO/eizEIHWq+8+OWTQwOUKvn77VlGAc7k9n1unAiBC14yO/eizEIHWq+8+OWTQwOUKvn77VlGAc7k9n1unAiBC14yO/eizEIHWq+8+OWTQwOUKvn77VlGAc7k9n1unAiBC14yO/eizEIHWq+8+OWT' + 
+                             'QwOUKvn77VlGAc7k9n1unAiBC14yO/eizEIHWq+8+OWTQ==');
+            audio.play().catch(e => console.log('音声再生エラー:', e));
+        }
+
+        // 作業履歴を更新
+        function updateJobHistory(job) {
+            // 実際の実装では、サーバーに保存
+            console.log('作業履歴に追加:', job);
+        }
+
+        // プロフィール設定を保存
+        function saveProfile() {
+            const area = document.querySelector('#profileModal select').value;
+            const startTime = document.querySelectorAll('#profileModal input[type="time"]')[0].value;
+            const endTime = document.querySelectorAll('#profileModal input[type="time"]')[1].value;
+            const minReward = document.querySelector('#profileModal input[type="number"]').value;
+            
+            // 実際の実装では、サーバーに保存
+            localStorage.setItem('driverProfile', JSON.stringify({
+                area, startTime, endTime, minReward
+            }));
+            
+            showToast('プロフィール設定を保存しました。', 'success');
+            closeModal('profileModal');
+        }
+
+        // モーダル外クリックで閉じる
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // フィルター変更時の処理
+        document.addEventListener('DOMContentLoaded', function() {
+            // フィルターにイベントリスナーを追加
+            document.querySelectorAll('.filter-group select, .filter-group input').forEach(filter => {
+                filter.addEventListener('change', renderJobList);
+            });
+            
+            // プロフィール保存ボタン
+            const profileSaveBtn = document.querySelector('#profileModal .btn-primary');
+            profileSaveBtn.onclick = saveProfile;
+            
+            // アニメーション用CSS追加
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+
+        // 定期的な通知
+        function scheduleNotifications() {
+            // 10秒後に新着案件通知
+            setTimeout(() => {
+                showToast('新着案件: 高報酬案件が2件追加されました！', 'info');
+            }, 10000);
+            
+            // 30秒後にリマインダー
+            setTimeout(() => {
+                if (document.getElementById('currentJob').style.display !== 'none') {
+                    showToast('安全運転を心がけてください。休憩も大切です。', 'info');
+                }
+            }, 30000);
+        }
+
+        // 連絡先関連の関数
+        function callSupport() {
+            if (confirm('サポートセンター（0120-XXX-XXXX）に電話をかけますか？')) {
+                showToast('電話アプリを起動しています...', 'info');
+                // 実際の実装では: window.location.href = 'tel:0120XXXXXXX';
+            }
+        }
+
+        function openChat() {
+            showToast('チャットサポートを開いています...', 'info');
+            // 実際の実装では、チャットウィジェットを開く
+            setTimeout(() => {
+                const chatMessage = prompt('お困りのことをお聞かせください：');
+                if (chatMessage) {
+                    showToast('サポートスタッフが対応中です。まもなく返信があります。', 'success');
+                }
+            }, 500);
+        }
+
+        function sendEmail() {
+            showToast('メールアプリを起動しています...', 'info');
+            // 実際の実装では: window.location.href = 'mailto:support@cargo.jp';
+        }
+
+        // レポート関連の関数
+        function downloadReport() {
+            showToast('収益レポートをダウンロード中...', 'info');
+            setTimeout(() => {
+                showToast('レポート（2024年6月分）のダウンロードが完了しました。', 'success');
+                // 実際の実装では、PDFファイルをダウンロード
+            }, 2000);
+        }
+
+        function requestPayout() {
+            const payoutAmount = prompt('出金額を入力してください（現在の残高: ¥180,000）：', '180000');
+            if (payoutAmount && !isNaN(payoutAmount)) {
+                if (confirm(`¥${parseInt(payoutAmount).toLocaleString()}を登録口座に出金申請しますか？\n\n振込予定日: 翌営業日\n振込先: みずほ銀行 ***支店 普通 ****123`)) {
+                    showToast('出金申請を受け付けました。翌営業日に振り込まれます。', 'success');
+                }
+            }
+        }
+
+        // 進捗ステップを更新
+        function updateProgressStep(step) {
+            const steps = document.querySelectorAll('.progress-step');
+            steps.forEach((s, index) => {
+                s.classList.remove('active', 'completed');
+                if (index < step) {
+                    s.classList.add('completed');
+                } else if (index === step) {
+                    s.classList.add('active');
+                }
+            });
+        }
+
+        // リアルタイム位置追跡のシミュレーション
+        function simulateLocationTracking() {
+            const locations = [
+                { lat: 35.6762, lng: 139.6503, address: '東京都新宿区' },
+                { lat: 35.6544, lng: 139.7447, address: '東京都渋谷区' },
+                { lat: 35.4437, lng: 139.6380, address: '神奈川県横浜市' }
+            ];
+            
+            let currentIndex = 0;
+            setInterval(() => {
+                if (document.getElementById('currentJob').style.display !== 'none' && currentIndex < locations.length) {
+                    console.log('現在位置更新:', locations[currentIndex]);
+                    currentIndex++;
+                    
+                    // 進捗を更新
+                    if (currentIndex === 2) {
+                        updateProgressStep(1); // 輸送中
+                    } else if (currentIndex === 3) {
+                        updateProgressStep(2); // 納車
+                    }
+                }
+            }, 30000); // 30秒ごとに更新
+        }
+
+        // デモ用: 自動案件追加
+        function addDemoJobs() {
+            setTimeout(() => {
+                const newJob = {
+                    id: 'JOB006',
+                    title: 'レクサス LS 2023年',
+                    price: 65000,
+                    from: '東京都港区',
+                    to: '静岡県静岡市',
+                    distance: '180km',
+                    time: '3時間',
+                    date: '2024/06/15 8:00希望',
+                    company: '静岡レクサス',
+                    details: '高級車・要慎重運転',
+                    payment: '即日支払い',
+                    status: 'available'
+                };
+                
+                jobsData.unshift(newJob);
+                renderJobList();
+                showToast('新着！高報酬案件が追加されました: レクサス LS ¥65,000', 'success');
+            }, 20000);
+        }
+
+        // 初期化時に追加
+        window.addEventListener('load', function() {
+            renderJobList();
+            scheduleNotifications();
+            simulateLocationTracking();
+            addDemoJobs();
+            
+            // 通知許可をリクエスト
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        });
+    </script>
+</body>
+</html>

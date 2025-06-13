@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarGo - 中古車輸送プラットフォーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #ecf0f1;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .features {
+            padding: 80px 0;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            padding: 0 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .stats {
+            background: #34495e;
+            color: white;
+            padding: 60px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            color: #3498db;
+        }
+
+        .how-it-works {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .step {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            line-height: 60px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .demo-buttons {
+            text-align: center;
+            padding: 60px 0;
+            background: #ecf0f1;
+        }
+
+        .demo-buttons h2 {
+            margin-bottom: 2rem;
+            color: #2c3e50;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .demo-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .demo-card h3 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .file-architecture {
+            background: #2c3e50;
+            color: white;
+            padding: 80px 0;
+        }
+
+        .file-architecture .section-title {
+            color: white;
+        }
+
+        .architecture-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .file-tree {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 2rem;
+        }
+
+        .tree-root {
+            list-style: none;
+            font-family: 'Courier New', monospace;
+        }
+
+        .tree-root ul {
+            list-style: none;
+            margin-left: 1.5rem;
+            position: relative;
+        }
+
+        .tree-root ul::before {
+            content: '';
+            position: absolute;
+            left: -1rem;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .tree-root li {
+            margin: 0.5rem 0;
+            position: relative;
+        }
+
+        .tree-root li::before {
+            content: '├─';
+            position: absolute;
+            left: -1.5rem;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .tree-root li:last-child::before {
+            content: '└─';
+        }
+
+        .folder, .folder-title {
+            color: #f39c12;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .folder-group {
+            margin: 1rem 0;
+        }
+
+        .folder-group > ul {
+            margin-top: 0.5rem;
+        }
+
+        .file {
+            color: #3498db;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .file:hover {
+            color: #5dade2;
+            transform: translateX(5px);
+        }
+
+        .file-desc {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+
+        .architecture-info h3 {
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .quick-link {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 2rem 1rem;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .quick-link:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .quick-link .icon {
+            font-size: 3rem;
+            display: block;
+        }
+
+        .quick-link .text {
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
+
+        .quick-link.shipper { border-color: #3498db; }
+        .quick-link.driver { border-color: #27ae60; }
+        .quick-link.admin { border-color: #9b59b6; }
+        .quick-link.tracking { border-color: #e74c3c; }
+        .quick-link.checkin { border-color: #f39c12; }
+        .quick-link.maps { border-color: #1abc9c; }
+
+        .quick-link.shipper:hover { background: rgba(52, 152, 219, 0.2); }
+        .quick-link.driver:hover { background: rgba(39, 174, 96, 0.2); }
+        .quick-link.admin:hover { background: rgba(155, 89, 182, 0.2); }
+        .quick-link.tracking:hover { background: rgba(231, 76, 60, 0.2); }
+        .quick-link.checkin:hover { background: rgba(243, 156, 18, 0.2); }
+        .quick-link.maps:hover { background: rgba(26, 188, 156, 0.2); }
+
+        @media (max-width: 968px) {
+            .architecture-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .quick-links {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+
+            .file-tree {
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .quick-link {
+                padding: 1.5rem 0.5rem;
+            }
+
+            .quick-link .icon {
+                font-size: 2rem;
+            }
+
+            .quick-link .text {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">🚗 CarGo</div>
+            <div class="nav-links">
+                <a href="#features">機能</a>
+                <a href="#how-it-works">仕組み</a>
+                <a href="#stats">実績</a>
+                <a href="#demo">デモ</a>
+                <a href="#architecture">構成</a>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>中古車輸送を革新する<br>マッチングプラットフォーム</h1>
+        <p>最速・安全・低コストで中古車の輸送を実現。<br>荷主とドライバーを即時マッチングし、全工程をデジタル管理します。</p>
+        
+        <div class="cta-buttons">
+            <a href="shipper-dashboard.html" class="btn btn-primary">🏢 荷主として始める</a>
+            <a href="driver-dashboard.html" class="btn btn-secondary">🚗 ドライバーとして登録</a>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <h2 class="section-title">3つの価値提案</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>即時マッチング</h3>
+                <p>最短数分で輸送依頼が確定。AIが最適なドライバーを自動選定し、リアルタイムで案件をマッチングします。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>安心担保</h3>
+                <p>本人確認・運送保険・走行ログ・車両検査により、全工程を安全に管理。万が一の事故にも完全対応します。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3>コスト圧縮</h3>
+                <p>従来の陸送会社より最大40%コスト削減。最短距離・最適化された人件費で輸送コストを大幅に削減します。</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats" id="stats">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h3>95%</h3>
+                <p>マッチング成功率</p>
+            </div>
+            <div class="stat-item">
+                <h3>3分</h3>
+                <p>平均マッチング時間</p>
+            </div>
+            <div class="stat-item">
+                <h3>99.8%</h3>
+                <p>安全輸送完了率</p>
+            </div>
+            <div class="stat-item">
+                <h3>40%</h3>
+                <p>コスト削減率</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works" id="how-it-works">
+        <h2 class="section-title">利用の流れ</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>案件登録</h3>
+                <p>車両情報・受取場所・納車先・希望日時・報酬を入力して依頼を登録</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>即時マッチング</h3>
+                <p>条件に合うドライバーに即時通知。早い者勝ちまたは入札で契約確定</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <p>QRコードで本人確認後、360°撮影で車両状態を記録してから輸送開始</p>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>リアルタイム追跡</h3>
+                <p>GPS追跡で輸送状況をリアルタイム監視。荷主は専用ダッシュボードで確認</p>
+            </div>
+            <div class="step">
+                <div class="step-number">5</div>
+                <h3>安全引渡・決済</h3>
+                <p>納車先で再度車両検査。電子サインで完了し、報酬を即時支払い</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="demo-buttons" id="demo">
+        <h2>デモ画面を体験</h2>
+        <div class="demo-grid">
+            <div class="demo-card">
+                <h3>🏢 荷主用デモ</h3>
+                <p>案件登録・管理・追跡機能を体験</p>
+                <a href="shipper-dashboard.html" class="btn btn-primary">デモを見る</a>
+            </div>
+            <div class="demo-card">
+                <h3>🚗 ドライバー用デモ</h3>
+                <p>案件検索・応募・作業報告を体験</p>
+                <a href="driver-dashboard.html" class="btn btn-primary">デモを見る</a>
+            </div>
+            <div class="demo-card">
+                <h3>📊 管理者用デモ</h3>
+                <p>統計・監視・運営管理機能を体験</p>
+                <a href="admin-dashboard.html" class="btn btn-primary">デモを見る</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ファイルアーキテクチャ -->
+    <section class="file-architecture" id="architecture">
+        <h2 class="section-title">📁 プロジェクト構成</h2>
+        <div class="architecture-container">
+            <div class="file-tree">
+                <ul class="tree-root">
+                    <li>
+                        <span class="folder">📂 中古車輸送/</span>
+                        <ul>
+                            <li><a href="index.html" class="file">📄 index.html</a> <span class="file-desc">- メインランディングページ（現在のページ）</span></li>
+                            <li><a href="README.md" class="file">📄 README.md</a> <span class="file-desc">- プロジェクト仕様書</span></li>
+                            <li class="folder-group">
+                                <span class="folder-title">🏢 荷主向け</span>
+                                <ul>
+                                    <li><a href="shipper-dashboard.html" class="file">📄 shipper-dashboard.html</a> <span class="file-desc">- 荷主用ダッシュボード</span></li>
+                                </ul>
+                            </li>
+                            <li class="folder-group">
+                                <span class="folder-title">🚗 ドライバー向け</span>
+                                <ul>
+                                    <li><a href="driver-dashboard.html" class="file">📄 driver-dashboard.html</a> <span class="file-desc">- ドライバー用ダッシュボード</span></li>
+                                    <li><a href="checkin.html" class="file">📄 checkin.html</a> <span class="file-desc">- 車両チェックイン画面</span></li>
+                                </ul>
+                            </li>
+                            <li class="folder-group">
+                                <span class="folder-title">📊 管理者向け</span>
+                                <ul>
+                                    <li><a href="admin-dashboard.html" class="file">📄 admin-dashboard.html</a> <span class="file-desc">- 管理者用ダッシュボード</span></li>
+                                </ul>
+                            </li>
+                            <li class="folder-group">
+                                <span class="folder-title">🗺️ 共通機能</span>
+                                <ul>
+                                    <li><a href="tracking.html" class="file">📄 tracking.html</a> <span class="file-desc">- リアルタイム追跡画面（Google Maps対応）</span></li>
+                                    <li><a href="google-maps-demo.html" class="file">📄 google-maps-demo.html</a> <span class="file-desc">- Google Maps統合デモ・セットアップガイド</span></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="architecture-info">
+                <h3>🔗 クイックアクセス</h3>
+                <div class="quick-links">
+                    <a href="shipper-dashboard.html" class="quick-link shipper">
+                        <span class="icon">🏢</span>
+                        <span class="text">荷主向け<br>ダッシュボード</span>
+                    </a>
+                    <a href="driver-dashboard.html" class="quick-link driver">
+                        <span class="icon">🚗</span>
+                        <span class="text">ドライバー向け<br>ダッシュボード</span>
+                    </a>
+                    <a href="admin-dashboard.html" class="quick-link admin">
+                        <span class="icon">📊</span>
+                        <span class="text">管理者向け<br>ダッシュボード</span>
+                    </a>
+                    <a href="tracking.html" class="quick-link tracking">
+                        <span class="icon">🗺️</span>
+                        <span class="text">リアルタイム<br>追跡画面</span>
+                    </a>
+                    <a href="checkin.html" class="quick-link checkin">
+                        <span class="icon">📱</span>
+                        <span class="text">車両<br>チェックイン</span>
+                    </a>
+                    <a href="google-maps-demo.html" class="quick-link maps">
+                        <span class="icon">🌍</span>
+                        <span class="text">Google Maps<br>デモ</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2024 CarGo - 中古車輸送プラットフォーム. All rights reserved.</p>
+        <p>本システムは貨物自動車運送事業法・道路運送車両法に完全準拠しています</p>
+    </footer>
+
+    <script>
+        // スムーススクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 統計アニメーション
+        function animateStats() {
+            const stats = document.querySelectorAll('.stat-item h3');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const target = entry.target;
+                        const finalValue = target.textContent;
+                        
+                        if (finalValue.includes('%')) {
+                            const numValue = parseInt(finalValue);
+                            animateNumber(target, 0, numValue, '%');
+                        } else if (finalValue.includes('分')) {
+                            const numValue = parseInt(finalValue);
+                            animateNumber(target, 0, numValue, '分');
+                        }
+                    }
+                });
+            });
+
+            stats.forEach(stat => observer.observe(stat));
+        }
+
+        function animateNumber(element, start, end, suffix) {
+            const duration = 2000;
+            const range = end - start;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.floor(start + range * progress);
+                
+                element.textContent = current + suffix;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+        // ページ読み込み後にアニメーション開始
+        window.addEventListener('load', animateStats);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リアルタイム追跡 - CarGo</title>
+    <!-- Google Maps JavaScript API -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=geometry"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .tracking-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #27ae60;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(39, 174, 96, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1rem;
+            height: calc(100vh - 100px);
+        }
+
+        .map-section {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 100%;
+            background: #e8f4f8;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #7f8c8d;
+        }
+
+        .fallback-map {
+            width: 100%;
+            height: 100%;
+            background: #e8f4f8;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #7f8c8d;
+        }
+
+        .vehicle-marker {
+            position: absolute;
+            top: 45%;
+            left: 55%;
+            font-size: 2rem;
+            z-index: 10;
+            animation: moveVehicle 8s infinite linear;
+        }
+
+        @keyframes moveVehicle {
+            0% { top: 45%; left: 55%; }
+            25% { top: 40%; left: 60%; }
+            50% { top: 35%; left: 65%; }
+            75% { top: 30%; left: 70%; }
+            100% { top: 45%; left: 55%; }
+        }
+
+        .route-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(45deg, transparent 48%, #3498db 49%, #3498db 51%, transparent 52%),
+                linear-gradient(-45deg, transparent 48%, #3498db 49%, #3498db 51%, transparent 52%);
+            background-size: 20px 20px;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: #f8f9fa;
+            transform: scale(1.05);
+        }
+
+        .info-panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: #34495e;
+            color: white;
+            padding: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .job-summary {
+            background: #ecf0f1;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .job-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+        }
+
+        .progress-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #ecf0f1;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .eta-display {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .eta-time {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .location-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .location-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .location-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: white;
+        }
+
+        .start-location { background: #3498db; }
+        .current-location { background: #f39c12; }
+        .end-location { background: #27ae60; }
+
+        .tracking-log {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .log-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .log-time {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            min-width: 60px;
+        }
+
+        .log-icon {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: white;
+        }
+
+        .log-pickup { background: #3498db; }
+        .log-checkpoint { background: #f39c12; }
+        .log-delivery { background: #27ae60; }
+        .log-warning { background: #e74c3c; }
+
+        .alert-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            color: #b7950b;
+            margin-bottom: 0.5rem;
+        }
+
+        .speed-monitor {
+            background: #d5f4e6;
+            border: 1px solid #27ae60;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .speed-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 0.5rem;
+        }
+
+        .emergency-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            transition: all 0.3s;
+        }
+
+        .emergency-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .contact-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .contact-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .contact-shipper {
+            background: #3498db;
+            color: white;
+        }
+
+        .contact-driver {
+            background: #27ae60;
+            color: white;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 400px 1fr;
+                height: auto;
+            }
+            
+            .info-panel {
+                max-height: 500px;
+            }
+            
+            .map-controls {
+                top: 0.5rem;
+                right: 0.5rem;
+            }
+            
+            .control-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🗺️ CarGo リアルタイム追跡</div>
+            <div class="tracking-status">
+                <div class="status-dot"></div>
+                <span>追跡中</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- 地図セクション -->
+        <div class="map-section">
+            <!-- Google Maps表示エリア -->
+            <div id="map"></div>
+            
+            <!-- フォールバック表示（APIキーが無い場合） -->
+            <div id="fallback-map" class="fallback-map" style="display: none;">
+                <div class="route-line"></div>
+                <div class="vehicle-marker">🚗</div>
+                <div style="position: absolute; top: 20%; left: 20%; font-size: 1.5rem;">📍 開始地点</div>
+                <div style="position: absolute; bottom: 20%; right: 20%; font-size: 1.5rem;">🏁 目的地</div>
+                <div style="text-align: center;">
+                    <h3>🗺️ リアルタイム地図</h3>
+                    <p>Google Maps API デモモード</p>
+                    <small style="color: #95a5a6;">APIキーを設定すると実際の地図が表示されます</small>
+                </div>
+            </div>
+            
+            <div class="map-controls">
+                <button class="control-btn" onclick="centerMap()" title="現在位置に移動">📍</button>
+                <button class="control-btn" onclick="zoomIn()" title="ズームイン">+</button>
+                <button class="control-btn" onclick="zoomOut()" title="ズームアウト">-</button>
+                <button class="control-btn" onclick="toggleFullscreen()" title="フルスクリーン">⛶</button>
+            </div>
+        </div>
+
+        <!-- 情報パネル -->
+        <div class="info-panel">
+            <div class="panel-header">📋 輸送情報</div>
+            <div class="panel-content">
+                <!-- 案件サマリー -->
+                <div class="job-summary">
+                    <div class="job-title">トヨタ プリウス 2019年</div>
+                    <div class="job-detail">
+                        <span><strong>案件ID:</strong></span>
+                        <span>JOB001</span>
+                    </div>
+                    <div class="job-detail">
+                        <span><strong>ドライバー:</strong></span>
+                        <span>山田太郎</span>
+                    </div>
+                    <div class="job-detail">
+                        <span><strong>報酬:</strong></span>
+                        <span>¥35,000</span>
+                    </div>
+                </div>
+
+                <!-- 進捗表示 -->
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <strong>輸送進捗</strong>
+                        <span id="progressPercent">65%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 65%;"></div>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #7f8c8d;">
+                        残り距離: <span id="remainingDistance">15.2km</span>
+                    </div>
+                </div>
+
+                <!-- 到着予定時刻 -->
+                <div class="eta-display">
+                    <div class="eta-time" id="etaTime">15:30</div>
+                    <div>予定到着時刻</div>
+                    <div style="font-size: 0.9rem; margin-top: 0.5rem;">
+                        あと <span id="timeRemaining">23分</span>
+                    </div>
+                </div>
+
+                <!-- 位置情報 -->
+                <div class="location-info">
+                    <h4 style="margin-bottom: 0.5rem;">📍 ルート情報</h4>
+                    
+                    <div class="location-item">
+                        <div class="location-icon start-location">出</div>
+                        <div>
+                            <strong>出発地</strong><br>
+                            <small>東京都新宿区西新宿1-1-1</small>
+                        </div>
+                    </div>
+                    
+                    <div class="location-item">
+                        <div class="location-icon current-location">現</div>
+                        <div>
+                            <strong>現在位置</strong><br>
+                            <small id="currentLocation">東京都品川区東品川2-3-12</small>
+                        </div>
+                    </div>
+                    
+                    <div class="location-item">
+                        <div class="location-icon end-location">着</div>
+                        <div>
+                            <strong>目的地</strong><br>
+                            <small>神奈川県横浜市西区みなとみらい1-1-1</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 速度監視 -->
+                <div class="speed-monitor">
+                    <div class="speed-display" id="currentSpeed">52</div>
+                    <div>現在速度 (km/h)</div>
+                    <div style="font-size: 0.8rem; margin-top: 0.5rem; color: #27ae60;">
+                        ✅ 安全運転中
+                    </div>
+                </div>
+
+                <!-- アラート表示 -->
+                <div class="alert-section" id="alertSection" style="display: none;">
+                    <div class="alert-title">⚠️ 注意事項</div>
+                    <div id="alertMessage">速度制限を超過しています</div>
+                </div>
+
+                <!-- 追跡ログ -->
+                <div class="tracking-log">
+                    <h4 style="margin-bottom: 0.5rem;">📝 追跡ログ</h4>
+                    
+                    <div class="log-item">
+                        <div class="log-time">15:07</div>
+                        <div class="log-icon log-checkpoint">🚗</div>
+                        <div>環七通り通過</div>
+                    </div>
+                    
+                    <div class="log-item">
+                        <div class="log-time">14:45</div>
+                        <div class="log-icon log-checkpoint">📍</div>
+                        <div>中間地点到達</div>
+                    </div>
+                    
+                    <div class="log-item">
+                        <div class="log-time">14:20</div>
+                        <div class="log-icon log-pickup">✅</div>
+                        <div>車両受取完了・輸送開始</div>
+                    </div>
+                    
+                    <div class="log-item">
+                        <div class="log-time">14:15</div>
+                        <div class="log-icon log-pickup">📋</div>
+                        <div>車両チェックイン完了</div>
+                    </div>
+                </div>
+
+                <!-- 連絡機能 -->
+                <div class="contact-section">
+                    <button class="contact-btn contact-shipper" onclick="contactShipper()">📞 荷主に連絡</button>
+                    <button class="contact-btn contact-driver" onclick="contactDriver()">📞 ドライバーに連絡</button>
+                </div>
+
+                <!-- 緊急連絡ボタン -->
+                <button class="emergency-btn" onclick="emergencyContact()">🚨 緊急連絡</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentProgress = 65;
+        let currentSpeed = 52;
+        let alertShown = false;
+        let map, vehicleMarker, directionsService, directionsRenderer;
+        let routeCoordinates = [];
+        let currentPositionIndex = 0;
+
+        // 地図の初期化
+        function initMap() {
+            // 出発地と目的地の座標
+            const origin = { lat: 35.6894, lng: 139.6917 }; // 新宿駅
+            const destination = { lat: 35.4647, lng: 139.6224 }; // 横浜駅
+            const currentPos = { lat: 35.6580, lng: 139.7016 }; // 品川駅（現在位置）
+
+            try {
+                // 地図の作成
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 12,
+                    center: currentPos,
+                    mapTypeId: 'roadmap',
+                    styles: [
+                        {
+                            featureType: 'water',
+                            elementType: 'geometry',
+                            stylers: [{ color: '#e9e9e9' }]
+                        },
+                        {
+                            featureType: 'landscape',
+                            elementType: 'labels',
+                            stylers: [{ visibility: 'off' }]
+                        }
+                    ]
+                });
+
+                // ルート表示サービス
+                directionsService = new google.maps.DirectionsService();
+                directionsRenderer = new google.maps.DirectionsRenderer({
+                    suppressMarkers: false,
+                    polylineOptions: {
+                        strokeColor: '#3498db',
+                        strokeWeight: 5,
+                        strokeOpacity: 0.8
+                    }
+                });
+                directionsRenderer.setMap(map);
+
+                // ルートを計算・表示
+                calculateAndDisplayRoute(origin, destination);
+
+                // カスタムマーカーの作成
+                createCustomMarkers(origin, destination, currentPos);
+
+                console.log('Google Maps が正常に読み込まれました');
+
+            } catch (error) {
+                console.error('Google Maps の読み込みに失敗:', error);
+                showFallbackMap();
+            }
+        }
+
+        // ルート計算と表示
+        function calculateAndDisplayRoute(origin, destination) {
+            directionsService.route({
+                origin: origin,
+                destination: destination,
+                travelMode: google.maps.TravelMode.DRIVING,
+                avoidHighways: false,
+                avoidTolls: false
+            }, (response, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(response);
+                    
+                    // ルートの座標を保存（アニメーション用）
+                    const route = response.routes[0];
+                    routeCoordinates = [];
+                    route.legs.forEach(leg => {
+                        leg.steps.forEach(step => {
+                            routeCoordinates = routeCoordinates.concat(step.path);
+                        });
+                    });
+                    
+                    console.log('ルートが計算されました:', routeCoordinates.length, '個の座標点');
+                } else {
+                    console.error('ルート計算に失敗:', status);
+                }
+            });
+        }
+
+        // カスタムマーカーの作成
+        function createCustomMarkers(origin, destination, currentPos) {
+            // 出発地マーカー
+            new google.maps.Marker({
+                position: origin,
+                map: map,
+                title: '出発地: 東京都新宿区',
+                icon: {
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="15" cy="15" r="12" fill="#3498db" stroke="white" stroke-width="3"/>
+                            <text x="15" y="20" text-anchor="middle" fill="white" font-size="14" font-weight="bold">出</text>
+                        </svg>
+                    `),
+                    scaledSize: new google.maps.Size(30, 30)
+                }
+            });
+
+            // 目的地マーカー
+            new google.maps.Marker({
+                position: destination,
+                map: map,
+                title: '目的地: 神奈川県横浜市',
+                icon: {
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="15" cy="15" r="12" fill="#27ae60" stroke="white" stroke-width="3"/>
+                            <text x="15" y="20" text-anchor="middle" fill="white" font-size="14" font-weight="bold">着</text>
+                        </svg>
+                    `),
+                    scaledSize: new google.maps.Size(30, 30)
+                }
+            });
+
+            // 車両（現在位置）マーカー
+            vehicleMarker = new google.maps.Marker({
+                position: currentPos,
+                map: map,
+                title: '車両現在位置',
+                icon: {
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg width="35" height="35" viewBox="0 0 35 35" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="17.5" cy="17.5" r="15" fill="#f39c12" stroke="white" stroke-width="3"/>
+                            <text x="17.5" y="23" text-anchor="middle" fill="white" font-size="18">🚗</text>
+                        </svg>
+                    `),
+                    scaledSize: new google.maps.Size(35, 35)
+                },
+                zIndex: 1000
+            });
+
+            // 車両マーカーをクリックした時の情報ウィンドウ
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div style="font-family: 'Segoe UI', sans-serif; padding: 5px;">
+                        <h4 style="margin: 0 0 5px 0; color: #2c3e50;">🚗 トヨタ プリウス</h4>
+                        <p style="margin: 2px 0; font-size: 0.9rem;">ドライバー: 山田太郎</p>
+                        <p style="margin: 2px 0; font-size: 0.9rem;">速度: <span id="marker-speed">${currentSpeed}</span> km/h</p>
+                        <p style="margin: 2px 0; font-size: 0.9rem;">進捗: <span id="marker-progress">${currentProgress}</span>%</p>
+                    </div>
+                `
+            });
+
+            vehicleMarker.addListener('click', () => {
+                // 情報ウィンドウの内容を最新に更新
+                infoWindow.setContent(`
+                    <div style="font-family: 'Segoe UI', sans-serif; padding: 5px;">
+                        <h4 style="margin: 0 0 5px 0; color: #2c3e50;">🚗 トヨタ プリウス</h4>
+                        <p style="margin: 2px 0; font-size: 0.9rem;">ドライバー: 山田太郎</p>
+                        <p style="margin: 2px 0; font-size: 0.9rem;">速度: ${Math.round(currentSpeed)} km/h</p>
+                        <p style="margin: 2px 0; font-size: 0.9rem;">進捗: ${Math.round(currentProgress)}%</p>
+                        <p style="margin: 2px 0; font-size: 0.9rem;">最終更新: ${new Date().toLocaleTimeString('ja-JP')}</p>
+                    </div>
+                `);
+                infoWindow.open(map, vehicleMarker);
+            });
+        }
+
+        // 車両位置の更新アニメーション
+        function updateVehiclePosition() {
+            if (routeCoordinates.length > 0 && vehicleMarker) {
+                // 進捗に基づいて座標を計算
+                const progressIndex = Math.floor((currentProgress / 100) * (routeCoordinates.length - 1));
+                
+                if (progressIndex < routeCoordinates.length) {
+                    const newPosition = routeCoordinates[progressIndex];
+                    
+                    // マーカーを滑らかに移動
+                    vehicleMarker.setPosition(newPosition);
+                    
+                    // 地図の中心を車両に合わせて移動（オプション）
+                    // map.panTo(newPosition);
+                }
+            }
+        }
+
+        // フォールバック地図の表示
+        function showFallbackMap() {
+            document.getElementById('map').style.display = 'none';
+            document.getElementById('fallback-map').style.display = 'flex';
+            console.log('フォールバック地図を表示しています');
+        }
+
+        // 地図コントロール機能（Google Maps対応版）
+        function centerMap() {
+            if (map && vehicleMarker) {
+                map.setCenter(vehicleMarker.getPosition());
+                map.setZoom(15);
+            } else {
+                alert('📍 現在位置に地図をセンタリングします');
+            }
+        }
+
+        function zoomIn() {
+            if (map) {
+                map.setZoom(map.getZoom() + 1);
+            } else {
+                alert('🔍 地図をズームインします');
+            }
+        }
+
+        function zoomOut() {
+            if (map) {
+                map.setZoom(map.getZoom() - 1);
+            } else {
+                alert('🔍 地図をズームアウトします');
+            }
+        }
+
+        // Google Maps API読み込みエラーハンドリング
+        window.gm_authFailure = function() {
+            console.error('Google Maps API認証に失敗しました');
+            showFallbackMap();
+            alert('Google Maps APIキーが無効です。フォールバック地図を表示します。\n\n実際の利用時は有効なAPIキーを設定してください。');
+        };
+
+        function toggleFullscreen() {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                document.documentElement.requestFullscreen();
+            }
+        }
+
+        // 連絡機能
+        function contactShipper() {
+            alert('📞 荷主（田中商会）に電話をかけます\n\n実装時には：\n- VoIP通話機能\n- チャット機能\n- 位置情報共有');
+        }
+
+        function contactDriver() {
+            alert('📞 ドライバー（山田太郎）に電話をかけます\n\n実装時には：\n- VoIP通話機能\n- チャット機能\n- 緊急通知');
+        }
+
+        function emergencyContact() {
+            if (confirm('🚨 緊急連絡を発信しますか？\n\n- 警察・消防・救急\n- CarGo緊急対応センター\n- 保険会社')) {
+                alert('🚨 緊急連絡を発信中...\n緊急対応チームに通知されました');
+            }
+        }
+
+        // リアルタイム更新シミュレーション
+        function updateTrackingData() {
+            // 進捗の更新
+            currentProgress += 0.5;
+            if (currentProgress > 100) currentProgress = 100;
+            
+            document.getElementById('progressPercent').textContent = Math.round(currentProgress) + '%';
+            document.getElementById('progressFill').style.width = currentProgress + '%';
+            
+            // 残り距離の更新
+            const remainingDistance = (35 * (100 - currentProgress) / 100).toFixed(1);
+            document.getElementById('remainingDistance').textContent = remainingDistance + 'km';
+            
+            // 速度の更新（ランダム変動）
+            currentSpeed += (Math.random() - 0.5) * 10;
+            currentSpeed = Math.max(0, Math.min(80, currentSpeed));
+            document.getElementById('currentSpeed').textContent = Math.round(currentSpeed);
+            
+            // 速度アラート
+            if (currentSpeed > 70 && !alertShown) {
+                showSpeedAlert();
+                alertShown = true;
+            } else if (currentSpeed <= 70 && alertShown) {
+                hideSpeedAlert();
+                alertShown = false;
+            }
+            
+            // ETA時間の更新
+            const now = new Date();
+            const etaMinutes = Math.round((100 - currentProgress) * 0.6);
+            const eta = new Date(now.getTime() + etaMinutes * 60000);
+            document.getElementById('etaTime').textContent = eta.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('timeRemaining').textContent = etaMinutes + '分';
+            
+            // 現在位置の更新（デモ用）
+            const locations = [
+                '東京都品川区東品川2-3-12',
+                '東京都港区芝浦3-15-6',
+                '東京都港区台場1-7-1',
+                '神奈川県横浜市西区高島2-19-12',
+                '神奈川県横浜市西区みなとみらい1-1-1'
+            ];
+            const locationIndex = Math.floor(currentProgress / 20);
+            if (locations[locationIndex]) {
+                document.getElementById('currentLocation').textContent = locations[locationIndex];
+            }
+            
+            // Google Maps上の車両位置も更新
+            updateVehiclePosition();
+        }
+
+        function showSpeedAlert() {
+            const alertSection = document.getElementById('alertSection');
+            const alertMessage = document.getElementById('alertMessage');
+            
+            alertMessage.textContent = '制限速度を超過しています。安全運転を心がけてください。';
+            alertSection.style.display = 'block';
+        }
+
+        function hideSpeedAlert() {
+            document.getElementById('alertSection').style.display = 'none';
+        }
+
+        // 新しいログアイテムを追加
+        function addLogItem(time, type, message) {
+            const trackingLog = document.querySelector('.tracking-log');
+            const newLogItem = document.createElement('div');
+            newLogItem.className = 'log-item';
+            newLogItem.innerHTML = `
+                <div class="log-time">${time}</div>
+                <div class="log-icon log-${type}">📍</div>
+                <div>${message}</div>
+            `;
+            
+            // 最初の子要素（h4）の後に挿入
+            trackingLog.insertBefore(newLogItem, trackingLog.children[1]);
+        }
+
+        // GPSデータ送信シミュレーション
+        function sendGPSData() {
+            // 実際の実装では、ここでGPS座標をサーバーに送信
+            console.log('GPS データ送信:', {
+                jobId: 'JOB001',
+                latitude: 35.6762 + Math.random() * 0.01,
+                longitude: 139.6503 + Math.random() * 0.01,
+                speed: currentSpeed,
+                heading: Math.random() * 360,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // WebSocket接続シミュレーション
+        function initializeWebSocket() {
+            // 実際の実装では、WebSocketでリアルタイムデータを受信
+            console.log('WebSocket接続を開始...');
+            
+            // サーバーからの更新をシミュレート
+            setInterval(() => {
+                const updates = [
+                    '新しいチェックポイントを通過しました',
+                    '高速道路に入りました',
+                    '休憩エリアを通過しました',
+                    '目的地に近づいています'
+                ];
+                
+                if (Math.random() < 0.1) { // 10%の確率で新しいログ
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+                    const randomUpdate = updates[Math.floor(Math.random() * updates.length)];
+                    addLogItem(timeStr, 'checkpoint', randomUpdate);
+                }
+            }, 30000); // 30秒ごと
+        }
+
+        // ページ読み込み時の初期化
+        window.addEventListener('load', function() {
+            console.log('リアルタイム追跡システムを初期化中...');
+            
+            // Google Maps API読み込み失敗時のタイムアウト（5秒後にフォールバック表示）
+            setTimeout(() => {
+                if (!map) {
+                    console.warn('Google Maps の読み込みがタイムアウトしました');
+                    showFallbackMap();
+                }
+            }, 5000);
+            
+            // 定期更新の開始
+            setInterval(updateTrackingData, 2000); // 2秒ごと
+            setInterval(sendGPSData, 5000); // 5秒ごと
+            
+            // WebSocket接続の初期化
+            initializeWebSocket();
+            
+            // 位置情報の取得許可をリクエスト
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        console.log('現在位置:', position.coords.latitude, position.coords.longitude);
+                    },
+                    (error) => {
+                        console.warn('位置情報の取得に失敗:', error.message);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 10000
+                    }
+                );
+            }
+        });
+
+        // 通知権限の要求
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    console.log('通知許可が得られました');
+                }
+            });
+        }
+
+        // 重要なイベントの通知
+        function showNotification(title, message) {
+            if (Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: message,
+                    icon: '/favicon.ico'
+                });
+            }
+        }
+
+        // デモ用の通知
+        setTimeout(() => {
+            showNotification('CarGo', '車両が中間地点を通過しました');
+        }, 10000);
+
+        // キーボードショートカット
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'f':
+                        e.preventDefault();
+                        toggleFullscreen();
+                        break;
+                    case 'c':
+                        e.preventDefault();
+                        centerMap();
+                        break;
+                    case '+':
+                    case '=':
+                        e.preventDefault();
+                        zoomIn();
+                        break;
+                    case '-':
+                        e.preventDefault();
+                        zoomOut();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Googleマップデモ - CarGo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .demo-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .map-container {
+            height: 500px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .info-box {
+            background: #ecf0f1;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #3498db;
+            color: white;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+        }
+
+        .btn-warning:hover {
+            background: #d68910;
+        }
+
+        .status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .status-info {
+            background: #d6eaf8;
+            color: #21618c;
+        }
+
+        .status-success {
+            background: #d5f4e6;
+            color: #0e6b20;
+        }
+
+        .status-warning {
+            background: #fdebd0;
+            color: #b7950b;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .setup-steps {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .setup-steps h3 {
+            color: #b7950b;
+            margin-bottom: 1rem;
+        }
+
+        .setup-steps ol {
+            margin-left: 1.5rem;
+        }
+
+        .setup-steps li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🗺️ Googleマップ統合デモ</h1>
+        <p>CarGo リアルタイム追跡システム</p>
+    </header>
+
+    <div class="container">
+        <!-- セットアップ手順 -->
+        <div class="setup-steps">
+            <h3>🔧 Google Maps API セットアップ手順</h3>
+            <ol>
+                <li><strong>Google Cloud Console</strong> にアクセス: <a href="https://console.cloud.google.com/" target="_blank">https://console.cloud.google.com/</a></li>
+                <li>新しいプロジェクトを作成するか、既存のプロジェクトを選択</li>
+                <li>「APIs & Services」→「Library」で「Maps JavaScript API」を有効化</li>
+                <li>「APIs & Services」→「Credentials」でAPIキーを作成</li>
+                <li>下記のHTML内の「YOUR_API_KEY」を実際のAPIキーに置き換え</li>
+                <li>必要に応じてAPIキーの制限を設定（HTTPリファラー、IPアドレスなど）</li>
+            </ol>
+            <p><strong>注意:</strong> 本番環境では必ずAPIキーを適切に保護してください。</p>
+        </div>
+
+        <!-- ステータス表示 -->
+        <div id="status" class="status status-info">
+            📡 Google Maps API の読み込み状況を確認中...
+        </div>
+
+        <!-- 地図デモ -->
+        <div class="demo-section">
+            <h2>🚗 リアルタイム車両追跡デモ</h2>
+            
+            <div class="info-box">
+                <strong>デモ内容:</strong> 新宿駅から横浜駅への車両輸送ルートをリアルタイムで追跡
+                <br><strong>機能:</strong> ルート表示、車両位置更新、カスタムマーカー、情報ウィンドウ
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="centerOnVehicle()">🚗 車両位置へ移動</button>
+                <button class="btn" onclick="showRoute()">🛣️ 全ルート表示</button>
+                <button class="btn btn-success" onclick="startTracking()">▶️ 追跡開始</button>
+                <button class="btn btn-warning" onclick="stopTracking()">⏸️ 追跡停止</button>
+            </div>
+
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+
+            <div class="info-box">
+                <div><strong>現在速度:</strong> <span id="currentSpeed">52</span> km/h</div>
+                <div><strong>進捗:</strong> <span id="progress">65</span>%</div>
+                <div><strong>予想到着時刻:</strong> <span id="eta">15:30</span></div>
+                <div><strong>最終更新:</strong> <span id="lastUpdate">-</span></div>
+            </div>
+        </div>
+
+        <!-- APIキー設定説明 -->
+        <div class="demo-section">
+            <h2>⚙️ 実装コード例</h2>
+            
+            <p>以下のコードを使用してGoogle Mapsを統合できます：</p>
+            
+            <div class="code-block">
+&lt;!-- Google Maps JavaScript API --&gt;
+&lt;script async defer 
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&amp;callback=initMap&amp;libraries=geometry"&gt;
+&lt;/script&gt;
+
+&lt;script&gt;
+function initMap() {
+    // 地図の初期化
+    const map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 12,
+        center: { lat: 35.6580, lng: 139.7016 }, // 品川駅
+        mapTypeId: 'roadmap'
+    });
+
+    // ルート表示
+    const directionsService = new google.maps.DirectionsService();
+    const directionsRenderer = new google.maps.DirectionsRenderer();
+    directionsRenderer.setMap(map);
+
+    // ルート計算
+    directionsService.route({
+        origin: { lat: 35.6894, lng: 139.6917 }, // 新宿駅
+        destination: { lat: 35.4647, lng: 139.6224 }, // 横浜駅
+        travelMode: google.maps.TravelMode.DRIVING
+    }, (response, status) =&gt; {
+        if (status === 'OK') {
+            directionsRenderer.setDirections(response);
+        }
+    });
+}
+&lt;/script&gt;
+            </div>
+
+            <h3>🔗 有用なリンク</h3>
+            <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <li><a href="https://developers.google.com/maps/documentation/javascript" target="_blank">Google Maps JavaScript API ドキュメント</a></li>
+                <li><a href="https://developers.google.com/maps/documentation/javascript/examples" target="_blank">サンプルコード集</a></li>
+                <li><a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Google Maps JavaScript API -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=geometry"></script>
+
+    <script>
+        let map, vehicleMarker, directionsService, directionsRenderer;
+        let trackingInterval;
+        let currentProgress = 65;
+        let currentSpeed = 52;
+        let routeCoordinates = [];
+
+        // 地図の初期化
+        function initMap() {
+            try {
+                // ステータス更新
+                updateStatus('success', '✅ Google Maps API が正常に読み込まれました');
+
+                // 座標定義
+                const origin = { lat: 35.6894, lng: 139.6917 }; // 新宿駅
+                const destination = { lat: 35.4647, lng: 139.6224 }; // 横浜駅
+                const currentPos = { lat: 35.6580, lng: 139.7016 }; // 品川駅
+
+                // 地図作成
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 12,
+                    center: currentPos,
+                    mapTypeId: 'roadmap',
+                    styles: [
+                        {
+                            featureType: 'poi',
+                            elementType: 'labels',
+                            stylers: [{ visibility: 'off' }]
+                        }
+                    ]
+                });
+
+                // ルート表示サービス
+                directionsService = new google.maps.DirectionsService();
+                directionsRenderer = new google.maps.DirectionsRenderer({
+                    suppressMarkers: true,
+                    polylineOptions: {
+                        strokeColor: '#3498db',
+                        strokeWeight: 6,
+                        strokeOpacity: 0.8
+                    }
+                });
+                directionsRenderer.setMap(map);
+
+                // ルート計算
+                calculateRoute(origin, destination);
+
+                // マーカー作成
+                createMarkers(origin, destination, currentPos);
+
+                console.log('Google Maps 初期化完了');
+
+            } catch (error) {
+                console.error('Google Maps 初期化エラー:', error);
+                updateStatus('warning', '⚠️ Google Maps の初期化に失敗しました');
+            }
+        }
+
+        // ルート計算
+        function calculateRoute(origin, destination) {
+            directionsService.route({
+                origin: origin,
+                destination: destination,
+                travelMode: google.maps.TravelMode.DRIVING,
+                avoidHighways: false,
+                avoidTolls: false
+            }, (response, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(response);
+                    
+                    // ルート座標を保存
+                    const route = response.routes[0];
+                    routeCoordinates = [];
+                    route.legs.forEach(leg => {
+                        leg.steps.forEach(step => {
+                            routeCoordinates = routeCoordinates.concat(step.path);
+                        });
+                    });
+                    
+                    console.log('ルート計算完了:', routeCoordinates.length, '個の座標点');
+                } else {
+                    console.error('ルート計算失敗:', status);
+                    updateStatus('warning', '⚠️ ルート計算に失敗しました: ' + status);
+                }
+            });
+        }
+
+        // マーカー作成
+        function createMarkers(origin, destination, currentPos) {
+            // 出発地マーカー
+            new google.maps.Marker({
+                position: origin,
+                map: map,
+                title: '出発地: 新宿駅',
+                icon: {
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="20" cy="20" r="18" fill="#3498db" stroke="white" stroke-width="4"/>
+                            <text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold">出</text>
+                        </svg>
+                    `),
+                    scaledSize: new google.maps.Size(40, 40)
+                }
+            });
+
+            // 目的地マーカー
+            new google.maps.Marker({
+                position: destination,
+                map: map,
+                title: '目的地: 横浜駅',
+                icon: {
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="20" cy="20" r="18" fill="#27ae60" stroke="white" stroke-width="4"/>
+                            <text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold">着</text>
+                        </svg>
+                    `),
+                    scaledSize: new google.maps.Size(40, 40)
+                }
+            });
+
+            // 車両マーカー
+            vehicleMarker = new google.maps.Marker({
+                position: currentPos,
+                map: map,
+                title: 'トヨタ プリウス',
+                icon: {
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg width="45" height="45" viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="22.5" cy="22.5" r="20" fill="#f39c12" stroke="white" stroke-width="5"/>
+                            <text x="22.5" y="30" text-anchor="middle" fill="white" font-size="20">🚗</text>
+                        </svg>
+                    `),
+                    scaledSize: new google.maps.Size(45, 45)
+                },
+                zIndex: 1000
+            });
+
+            // 車両マーカークリック時の情報ウィンドウ
+            const infoWindow = new google.maps.InfoWindow();
+            vehicleMarker.addListener('click', () => {
+                infoWindow.setContent(`
+                    <div style="font-family: 'Segoe UI', sans-serif; padding: 10px; min-width: 200px;">
+                        <h3 style="margin: 0 0 10px 0; color: #2c3e50;">🚗 トヨタ プリウス</h3>
+                        <div style="margin: 5px 0;"><strong>ドライバー:</strong> 山田太郎</div>
+                        <div style="margin: 5px 0;"><strong>案件ID:</strong> JOB001</div>
+                        <div style="margin: 5px 0;"><strong>現在速度:</strong> ${Math.round(currentSpeed)} km/h</div>
+                        <div style="margin: 5px 0;"><strong>進捗:</strong> ${Math.round(currentProgress)}%</div>
+                        <div style="margin: 5px 0;"><strong>最終更新:</strong> ${new Date().toLocaleTimeString('ja-JP')}</div>
+                    </div>
+                `);
+                infoWindow.open(map, vehicleMarker);
+            });
+        }
+
+        // ステータス更新
+        function updateStatus(type, message) {
+            const statusEl = document.getElementById('status');
+            statusEl.className = `status status-${type}`;
+            statusEl.textContent = message;
+        }
+
+        // 車両位置更新
+        function updateVehiclePosition() {
+            if (routeCoordinates.length > 0 && vehicleMarker) {
+                const progressIndex = Math.floor((currentProgress / 100) * (routeCoordinates.length - 1));
+                
+                if (progressIndex < routeCoordinates.length) {
+                    const newPosition = routeCoordinates[progressIndex];
+                    vehicleMarker.setPosition(newPosition);
+                }
+            }
+
+            // UI更新
+            document.getElementById('currentSpeed').textContent = Math.round(currentSpeed);
+            document.getElementById('progress').textContent = Math.round(currentProgress);
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('ja-JP');
+
+            // ETA計算
+            const etaMinutes = Math.round((100 - currentProgress) * 0.6);
+            const eta = new Date(Date.now() + etaMinutes * 60000);
+            document.getElementById('eta').textContent = eta.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // コントロール関数
+        function centerOnVehicle() {
+            if (map && vehicleMarker) {
+                map.setCenter(vehicleMarker.getPosition());
+                map.setZoom(15);
+            }
+        }
+
+        function showRoute() {
+            if (map) {
+                const bounds = new google.maps.LatLngBounds();
+                bounds.extend({ lat: 35.6894, lng: 139.6917 }); // 新宿
+                bounds.extend({ lat: 35.4647, lng: 139.6224 }); // 横浜
+                map.fitBounds(bounds);
+            }
+        }
+
+        function startTracking() {
+            if (trackingInterval) clearInterval(trackingInterval);
+            
+            trackingInterval = setInterval(() => {
+                // 進捗更新
+                currentProgress += 0.8;
+                if (currentProgress > 100) currentProgress = 100;
+
+                // 速度更新
+                currentSpeed += (Math.random() - 0.5) * 8;
+                currentSpeed = Math.max(30, Math.min(80, currentSpeed));
+
+                updateVehiclePosition();
+
+                if (currentProgress >= 100) {
+                    stopTracking();
+                    updateStatus('success', '🎉 輸送完了！目的地に到着しました');
+                }
+            }, 1000);
+
+            updateStatus('info', '🚀 リアルタイム追跡を開始しました');
+        }
+
+        function stopTracking() {
+            if (trackingInterval) {
+                clearInterval(trackingInterval);
+                trackingInterval = null;
+            }
+            updateStatus('warning', '⏸️ 追跡を停止しました');
+        }
+
+        // エラーハンドリング
+        window.gm_authFailure = function() {
+            updateStatus('warning', '❌ Google Maps API認証に失敗しました。APIキーを確認してください。');
+        };
+
+        // 初期化タイムアウト
+        setTimeout(() => {
+            if (!map) {
+                updateStatus('warning', '⏰ Google Maps APIの読み込みがタイムアウトしました。APIキーが正しく設定されているか確認してください。');
+            }
+        }, 10000);
+
+        // ページ読み込み時の初期データ更新
+        window.addEventListener('load', () => {
+            updateVehiclePosition();
+        });
+    </script>
+</body>
+</html>
